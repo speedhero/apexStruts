@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="GB2312"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+                               "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+<struts-config>
+	<form-beans>
+		<form-bean name="admin/sysLoginForm" type="org.apache.struts.action.DynaActionForm">
+			<form-property name="userId" type="java.lang.String" />
+			<form-property name="pass" type="java.lang.String" />
+		</form-bean>
+		<form-bean name="fckTemplateForm" type="com.apex.livebos.admin.fcktemplate.FCKTemplateForm"></form-bean>
+	</form-beans>
+	<action-mappings>
+  		<action name="admin/sysLoginForm" path="/admin/sysLogin" input="/admin/login.jsp" type="com.apex.livebos.admin.actions.LoginAction" scope="request">
+			<forward name="success" path="/jsp/main.jsp"></forward>
+			<forward name="fail" path="/admin/login.jsp"></forward>
+			<forward name="chgPwd" path="/jsp/chgPassword.jsp"></forward>
+		</action>
+		<action path="/admin/SystemInfo" type="com.apex.livebos.admin.actions.SystemInfo" scope="request">
+			<forward name="info" path="/admin/systeminfo/SystemInfo.jsp"></forward>
+			<forward name="message" path="/jsp/message.jsp"></forward>
+		</action>
+		<action path="/admin/AppDeploy" type="com.apex.livebos.admin.actions.AppDeployAction" scope="request">
+			<forward name="success" path="/admin/deploy/deploy.jsp" />
+			<forward name="message" path="/admin/deploy/deployMessage.jsp" />
+		</action>
+		<action path="/admin/LogConfig" type="com.apex.livebos.admin.actions.LogConfig" scope="request">
+			<forward name="config" path="/admin/logconfig/logconfig.jsp"></forward>
+		</action>
+		<action path="/admin/SystemRuntimeLog" type="com.apex.livebos.admin.actions.SystemRuntimeLog" scope="request">
+			<forward name="success" path="/admin/systemruntimelog/main.jsp"></forward>
+			<forward name="log" path="/admin/systemruntimelog/log.jsp"></forward>
+			<forward name="follow" path="/admin/systemruntimelog/follow.jsp"></forward>
+			<forward name="followed_file_info" path="/admin/systemruntimelog/followed_file_info.jsp"></forward>
+			<forward name="error" path="/jsp/message.jsp"></forward>	
+		</action>
+		<action path="/admin/LTPAConfig" type="com.apex.livebos.admin.actions.LTPAConfig" scope="request">
+			<forward name="config" path="/admin/LTPAConfig/LTPAConfig.jsp"></forward>
+		</action>
+		<action path="/admin/ParamsConfig" type="com.apex.livebos.admin.actions.ParamsManage" scope="request">
+			<forward name="config" path="/admin/params/config.jsp"></forward>
+		</action>
+		<action path="/admin/LayoutSetup" type="com.apex.livebos.admin.actions.LayoutSetup" scope="request">
+			<forward name="view" path="/admin/layoutsetup/layouts.jsp"></forward>
+		</action>
+		<action path="/admin/DsManager" type="com.apex.livebos.admin.actions.DsManageAction" scope="request">
+			<forward name="view" path="/admin/dsconfig/dsconfig.jsp"></forward>
+			<forward name="setpath" path="/admin/dsconfig/dspath.jsp"></forward>
+			<forward name="validate" path="/admin/dsconfig/validate.jsp"></forward>
+		</action>
+		<action path="/admin/DSMonitor" type="com.apex.livebos.admin.monitor.datasources.DSMonitorAction" scope="request">
+			<forward name="view" path="/admin/monitor/dsmonitor.jsp"></forward>
+		</action>
+		<action path="/admin/ConnectorStatMonitor" type="com.apex.livebos.admin.monitor.connectors.ConnectorStatMonitorAction" scope="request">
+			<forward name="view" path="/admin/monitor/csmonitor.jsp"/>
+			<forward name="connectorRequestDetails" path="/admin/monitor/connectorRequestDetails.jsp"/>
+			<forward name="connectorTrafficDetails" path="/admin/monitor/connectorTrafficDetails.jsp"/>
+		</action>
+		<action path="/admin/SchemeConfig" type="com.apex.livebos.admin.actions.SchemeConfigAction" scope="request">
+			<forward name="view" path="/admin/schemeconfig/schemeconfig.jsp"></forward>
+			<forward name="scheme" path="/admin/schemeconfig/scheme.jsp"></forward>
+		</action>
+		<action path="/admin/Schedule" type="com.apex.livebos.admin.actions.ScheduleAction" scope="request">
+			<forward name="view" path="/admin/schedule/schedulelist.jsp"></forward>
+			<forward name="new" path="/admin/schedule/schedule.jsp"></forward>
+			<forward name="example" path="/admin/schedule/example.jsp"></forward>
+		</action>
+		<action path="/admin/WFVersionManager" type="com.apex.livebos.admin.actions.WFVersionManageAction" scope="request">
+			<forward name="verlist" path="/admin/wfversion/versionManage.jsp"></forward>
+			<forward name="wflist" path="/admin/wfversion/wfList.jsp"></forward>
+		</action>
+		<action path="/admin/SystemAdmin" type="com.apex.livebos.admin.actions.SystemAdminAction" scope="request">
+		</action>
+		 
+		<action path="/admin/UserProject" type="com.apex.livebos.admin.actions.UserProjectAction" scope="request">			
+			<forward name="scheme_main" path="/admin/userproject/scheme_main.jsp"></forward>
+			<forward name="scheme_list" path="/admin/userproject/scheme_list.jsp"></forward>
+			<forward name="scheme_property" path="/admin/userproject/scheme_property.jsp"></forward>
+			<forward name="scheme_interface" path="/admin/userproject/scheme_interface.jsp"></forward>
+			<forward name="scheme_role" path="/admin/userproject/scheme_role.jsp"></forward>
+			<forward name="scheme_select" path="/admin/userproject/scheme_select.jsp"></forward>
+			<forward name="scheme_layout" path="/admin/userproject/scheme_layout.jsp"></forward>
+			<forward name="scheme_theme" path="/admin/userproject/scheme_theme.jsp"></forward>
+			<forward name="menu_main" path="/admin/userproject/menu_main.jsp"></forward>
+			<forward name="menu_tree" path="/admin/userproject/menu_tree.jsp"></forward>
+			<forward name="menu_property" path="/admin/userproject/menu_property.jsp"></forward>
+			<forward name="menu_dir" path="/admin/userproject/menu_dir.jsp"></forward>
+			<forward name="menu_item" path="/admin/userproject/menu_item.jsp"></forward>
+			<forward name="menu_system" path="/admin/userproject/menu_system.jsp"></forward>
+			<forward name="menu_object" path="/admin/userproject/menu_object.jsp"></forward>
+			<forward name="menu_objectitem" path="/admin/userproject/menu_objectitem.jsp"></forward>
+			<forward name="menu_objectfilter" path="/admin/userproject/menu_objectfilter.jsp"></forward>
+			<forward name="menu_exp" path="/admin/userproject/menu_exp.jsp"></forward>
+			<forward name="menu_imp" path="/admin/userproject/menu_imp_frame.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>
+		</action>
+		<action path="/admin/WorkArchive" type="com.apex.livebos.admin.actions.WorkArchiveAction" scope="request">			
+			<forward name="archive" path="/admin/wfarchive/archive.jsp"></forward>
+			<forward name="archive_resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="wf_tree" path="/jsp/Operate/xml/responseHTML.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>
+		</action>
+		<action path="/admin/WorkArchiveCfg" type="com.apex.livebos.admin.actions.WorkArchiveCfgAction" scope="request">			
+			<forward name="archiveCfg" path="/admin/wfarchive/archiveCfg.jsp"></forward>
+			<forward name="jsonResponse" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>
+		</action>
+		<action path="/admin/WorkflowProject" type="com.apex.livebos.admin.actions.WorkflowProjectAction" scope="request">
+			<forward name="scheme_main" path="/admin/wfproject/scheme_main.jsp"></forward>
+			<forward name="scheme_property" path="/admin/wfproject/scheme_property.jsp"></forward>
+			<forward name="scheme_role" path="/admin/userproject/scheme_role.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>			
+		</action>
+		<action path="/admin/TaskProject" type="com.apex.livebos.admin.actions.TaskProjectAction" scope="request">
+			<forward name="scheme_main" path="/admin/taskproject/scheme_main.jsp"></forward>
+			<forward name="scheme_property" path="/admin/taskproject/scheme_property.jsp"></forward>
+			<forward name="scheme_role" path="/admin/userproject/scheme_role.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>			
+		</action>
+		<action path="/admin/Statistic" type="com.apex.livebos.admin.actions.StatisticAction" scope="request">
+			<forward name="view" path="/admin/statistic/statistic.jsp"></forward>
+			<forward name="graph" path="/admin/statistic/statistic_graph.jsp"></forward>
+			<forward name="tree" path="/admin/statistic/statistic_tree.jsp"></forward>
+			<forward name="treeitem" path="/admin/statistic/tree_item.jsp"></forward>
+			<forward name="layout" path="/admin/statistic/main_layout.jsp"></forward>	
+			<forward name="config" path="/admin/statistic/config.jsp"></forward>	
+		</action>
+		<action path="/admin/dictEdit" type="com.apex.livebos.admin.dictionary.DictionaryAction" scope="request">
+		</action>
+		<action path="/admin/fckTemplate" name="fckTemplateForm" type="com.apex.livebos.admin.fcktemplate.FCKTemplatesAction"/>
+
+  		<action path="/admin/clusterState" type="com.apex.livebos.admin.clusterstate.ClusterStateAction" scope="request">
+	  		<forward name="view" path="/admin/clusterstate/clusterstate.jsp"/>
+	  	</action>
+
+		<action path="/admin/Runtime" type="com.apex.livebos.admin.actions.RuntimeAction" scope="request">
+			<forward name="view" path="/admin/runtime/layout.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>			
+		</action>
+		
+		<action path="/admin/NavPageConfig" type="com.apex.livebos.admin.actions.NavPageConfigAction" scope="request">
+			<forward name="scheme_main" path="/admin/navpageconfig/scheme_main.jsp"></forward>
+			<forward name="scheme_list" path="/admin/navpageconfig/scheme_list.jsp"></forward>
+			<forward name="scheme_property" path="/admin/navpageconfig/scheme_property.jsp"></forward>
+			<forward name="scheme_select" path="/admin/navpageconfig/scheme_select.jsp"></forward>
+			<forward name="menu_main" path="/admin/navpageconfig/menu_main.jsp"></forward>
+			<forward name="menu_design" path="/admin/navpageconfig/menu_design.jsp"></forward>
+			<forward name="menu_preview" path="/jsp/themeExt3/navPage.jsp"></forward>
+			<forward name="menu_tree" path="/admin/navpageconfig/menu_tree.jsp"></forward>
+			<forward name="menu_property" path="/admin/navpageconfig/menu_property.jsp"></forward>
+			<forward name="menu_dir" path="/admin/navpageconfig/menu_dir.jsp"></forward>
+			<forward name="menu_item" path="/admin/navpageconfig/menu_item.jsp"></forward>
+			<forward name="menu_object" path="/admin/navpageconfig/menu_object.jsp"></forward>
+			<forward name="menu_objectitem" path="/admin/navpageconfig/menu_objectitem.jsp"></forward>
+			<forward name="menu_objectfilter" path="/admin/navpageconfig/menu_objectfilter.jsp"></forward>
+			<forward name="menu_exp" path="/admin/navpageconfig/menu_exp.jsp"></forward>
+			<forward name="menu_imp" path="/admin/navpageconfig/menu_imp_frame.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>			
+		</action>
+		
+		<action path="/admin/SystemApproveCommentConfig" type="com.apex.livebos.admin.actions.ApproveCommentConfigAction" scope="request">
+			<forward name="view" path="/admin/approvecommentconfig/view.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>			
+		</action>
+		<action path="/admin/addressBookConfig" type="com.apex.livebos.admin.addressbook.AddressBookAction">
+			<forward name="resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="view" path="/admin/addressbook/view.jsp"></forward>
+			<forward name="search" path="/admin/globalsearch/tree.jsp"></forward>
+		</action>
+		<action path="/admin/MailServerConfig" type="com.apex.livebos.admin.actions.MailServerConfigAction">
+			<forward name="view" path="/admin/mailserverconfig/view.jsp"></forward>
+		</action>
+		
+		<action path="/admin/MobileMenuConfig" type="com.apex.livebos.admin.mobileconfig.MobileMenuConfigAction">
+			<forward name="view" path="/admin/mobileconfig/view.jsp"></forward>
+			<forward name="resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="searchColumn" path="/admin/mobileconfig/tree.jsp"></forward>
+			<forward name="searchObj" path="/admin/globalsearch/tree.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>
+			<forward name="treeMenu" path="/jsp/Operate/xml/responseHTML.jsp"></forward>
+		</action>
+		
+		<action path="/admin/globalSearchConfig" type="com.apex.livebos.admin.globalsearch.GlobalSearchConfigAction">
+			<forward name="resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="view" path="/admin/globalsearch/view.jsp"></forward>
+			<forward name="search" path="/admin/globalsearch/tree.jsp"></forward>
+		</action>
+		
+		<action path="/admin/NotificationConfig" type="com.apex.livebos.admin.notification.NotificationConfigAction">
+			<forward name="view" path="/notification/config/view.jsp"></forward>
+			<forward name="resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+			<forward name="searchColumn" path="/notification/config/tree.jsp"></forward>
+			<forward name="searchObj" path="/admin/globalsearch/tree.jsp"></forward>
+			<forward name="msg" path="/jsp/Operate/ext3/json/message.jsp"></forward>
+			<forward name="treeMenu" path="/jsp/Operate/xml/responseHTML.jsp"></forward>
+		</action>
+		
+		<action path="/admin/workcalendar" type="com.apex.livebos.admin.actions.WorkCalendarConfigAction">
+			<forward name="view" path="/admin/workcalendar/view.jsp"></forward>
+			<forward name="resp" path="/jsp/Operate/extJsonResponse.jsp"></forward>
+		</action>
+		<action path="/admin/authmanager" type="com.apex.livebos.admin.auth.manager.AuthManagerAction"></action>
+		<action path="/admin/authwizard" type="com.apex.livebos.admin.auth.wizard.WizardUIControl"></action>
+
+        <action path="/admin/objectEntity" type="com.apex.livebos.admin.objectentity.ObjectEntityAction">
+            <forward name="main" path="/admin/object-entity/main.jsp"/>
+        </action>
+  </action-mappings>
+	<!-- 消息资源 -->
+
+</struts-config>

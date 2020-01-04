@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE struts-config PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 1.3//EN"
+        "http://struts.apache.org/dtds/struts-config_1_3.dtd">
+
+<struts-config>
+    <form-beans>
+        <form-bean name="HelloForm" type="com.form.HelloForm" />
+        <form-bean name="TestForm" type="com.form.TestForm" />
+        <form-bean name="ImgForm" type="com.form.ImgForm" />
+    </form-beans>
+
+    <action-mappings>
+        <action path="/HelloWorld"
+                type="com.action.HelloAction"
+                name="HelloForm"
+                scope="request"
+                validate="true"
+                input="/hello.jsp"
+        >
+            <forward name="SayHello" path="/hello.jsp"/>
+        </action>
+        <action path="/testxml"
+                input="/indexxml.jsp"
+                name="TestForm"
+                scope="request"
+                type="com.action.TestxmlAction"
+                validate="false"/>
+        <action
+                attribute="testForm"
+                input="/index.jsp"
+                name="TestForm"
+                path="/test"
+                scope="request"
+                type="com.action.TestAction"
+                validate="false"/>
+        <action path="/uploadImage"
+                type="com.action.CustImgAction"
+                name="ImgForm"
+                scope="request"
+                validate="true"
+                parameter="method"
+                input="/persView.jsp">
+            <forward name="suc" path="/persView.jsp"/>
+        </action>
+
+    </action-mappings>
+    <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
+
+    <message-resources parameter="com.application"/>
+    <plug-in className="org.apache.struts.tiles.TilesPlugin">
+        <set-property value="/WEB-INF/tiles-defs.xml" property="definitions-config"/>
+    </plug-in>
+    <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property value="/org/apache/struts/validator/validator-rules.xml,/WEB-INF/validation.xml"
+                      property="pathnames"/>
+    </plug-in>
+</struts-config>

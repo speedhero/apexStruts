@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="GB2312"?>
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+                               "http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+<struts-config>
+	<action-mappings>
+		
+		<action path="/common" type="com.apex.bank.common.action.CommonAction" parameter="method" scope="request"> </action>
+		<action path="/custom" type="com.apex.bank.common.action.CustomAction" parameter="method" scope="request"> </action>
+		<!--权限-->
+		<action path="/auth" type="com.apex.bank.auth.AuthAction" parameter="method" scope="request"> </action>
+		<action path="/imps/export" type="com.imps.report.ExportExcel"  xscope="request"></action>
+		<!--画像Action查询-->
+		<action path="/cpm" type="com.riap.cpm.CPMAction" parameter="method" scope="request"> </action>	
+		
+		<!--活动量日程表-->
+		<action path="/wl/calendar" type="com.apex.bank.wealth.calendar.CalendarAction" parameter="method" scope="request"> </action>
+                                <!--HR-->
+		<action path="/postManual" type="com.hr.post.PostManualAction" parameter="method" scope="request"> </action>		
+		
+	</action-mappings>  
+</struts-config>

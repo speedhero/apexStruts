@@ -7,6 +7,8 @@ public class ImgForm extends ActionForm {
 
     private FormFile file;
 
+    private String custId;
+
     public FormFile getFile() {
         return file;
     }
@@ -16,4 +18,11 @@ public class ImgForm extends ActionForm {
     }
 
 
+    public String getCustId() {
+        return custId;
+    }
+
+    public void setCustId(String custId) {
+        this.custId = custId;
+    }
 }

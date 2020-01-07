@@ -27,7 +27,7 @@
                 <div class="customer-ph">
                     <form action="" method="post" enctype="multipart/form-data" name="form" id="ImgForm"><td width="40%">
                         <div class="bgPhoto">
-                            <a href="javascript:void(0)" class="cal_decoration"><img id="defauPhoto" title="default" style="width: 120px;height: 120px;" src="<%=basePath%>img/defaultPhoto.jpg"/></a>
+                            <a href="javascript:void(0)" class="cal_decoration"><img id="defauPhoto" title="default" style="width: 120px;height: 120px;" src="<%=basePath%>uploadImage.do?method=getImage&custId=11111111"/></a>
                         </div>
                         <div id="light" class="white_content">
                             <div style="width: 97.8%;height: 20px;background-color: #B1834C;font-size: 12px;color: white;
@@ -109,11 +109,15 @@
         var imgType = imgFilePath.substring(endIndex+1);
         /*全部转为大写*/
         imgType = imgType.toUpperCase();
-        if("GIF"!=imgType && "PNG"!=imgType && "JPG"!=imgType && "BMP"!=imgType){
+      /*  if("GIF"!=imgType && "PNG"!=imgType && "JPG"!=imgType && "BMP"!=imgType){
+            tag = false;
+        }*/
+        if("JPG"!=imgType){
             tag = false;
         }
         if(!tag){
-            alert("上传图片的文件类型必须为: *.gif,*.jpg,*.png,*.bmp,请重新选择!");
+            //alert("上传图片的文件类型必须为: *.gif,*.jpg,*.png,*.bmp,请重新选择!");
+            alert("上传图片的文件类型必须为: *.jpg 请重新选择!");
             return;
         }
         var options = {
@@ -148,7 +152,10 @@
             onSelect : showPreview,
             allowSelect: true,
             trackDocument: true,
-            aspectRatio : xsize / ysize
+            aspectRatio : xsize / ysize,
+            onSelect : function () {
+                $(".jcrop-vline.right").remove();
+            }
         }, function() {
             var bounds = this.getBounds();
             boundx = bounds[0];
@@ -228,10 +235,10 @@
         if("1"==jsonData.flag){
             destroyImageCut();//请求成功即销毁头像截取及预览以便下次选择头像初始化为未选择
             //$("#defauPhoto").attr("title","userImage");//头像上传成功改变title标识确定用户是否上传过头像
-            var src = "${ctx}/"+jsonData.url;//保存后立即回显图片的路径
+            var src = "<%=basePath%>"+jsonData.url;//保存后立即回显图片的路径
             $("#defauPhoto").attr("src",src);
         }else{
-            alert("保存失败!");
+            alert("保存失败!"+jsonData.desc);
         }
     }
 
@@ -249,6 +256,31 @@
         $("#light").css("display","none");
         $("#fade").css("display","none");
     }
+
+    function showImg(data){
+        var jsonData = JSON.parse(data);//第二种字符串json转为json对象
+        //$.fn.jqLoading("destroy");//关闭等待层
+        if("1"==jsonData.flag){
+            var src = "<%=basePath%>"+jsonData.url;//保存后立即回显图片的路径
+            $("#defauPhoto").attr("src",src);
+        }else{
+            $("#defauPhoto").attr("src","<%=basePath%>img/defaultPhoto.jpg");
+        }
+    }
+
+
+     //初始化函数，如果请求不到图像则使用默认的图像
+   /* $(document).ready(function(){
+        //$("#defauPhoto")
+
+        var url = "uploadImage.do?method=getImage";
+        var type = "text";
+        var data = {
+            "custId": "11111111"
+        };
+        //$.fn.jqLoading({text:'正在保存,请稍后...'});//打开等待层
+        $.post(url,data,showImg,type);
+    });*/
 </script>
 </body>
 </html>

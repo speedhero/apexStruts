@@ -27,7 +27,7 @@
                 <div class="customer-ph">
                     <form action="" method="post" enctype="multipart/form-data" name="form" id="ImgForm"><td width="40%">
                         <div class="bgPhoto">
-                            <a href="javascript:void(0)" class="cal_decoration"><img id="defauPhoto" title="default" style="width: 120px;height: 120px;" src="<%=basePath%>uploadImage.do?method=getImage&custId=11111111"/></a>
+                            <a href="javascript:void(0)" class="cal_decoration"><img id="defauPhoto" title="编辑头像" style="width: 120px;height: 120px;" src="<%=basePath%>uploadImage.do?method=getImage&custId=11111111"/></a>
                         </div>
                         <div id="light" class="white_content">
                             <div style="width: 97.8%;height: 20px;background-color: #B1834C;font-size: 12px;color: white;

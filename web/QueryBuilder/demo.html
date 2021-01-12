@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/query-builder.default.min.css">
+
+    <script type="text/javascript" src="./js/jquery-1.12.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.js"></script>
+    <script type="text/javascript" src="./js/query-builder.standalone.js"></script>
+    <script type="text/javascript" src="./i18n/query-builder.zh-CN.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-select.js"></script>
+</head>
+<body>
+<br><br>基于jquery，还要引入jquery框架<br><br>
+<div id='builder-basic'></div>
+
+<script type="text/javascript">
+$('#builder-basic').queryBuilder({　　
+    plugins: {
+        'bt-selectpicker':{liveSearch:true,style:'btn-inverse'},//引用了selectpicker
+        'bt-tooltip-errors':{delay:100},
+    },
+　　filters: [{id:34,type:"string"},{id:35,type:"integer"},],　　
+    rules:  [
+        {
+            /* empty rule */
+            empty: true
+        }
+    ]
+    })
+</script>
+</body>
+</html>

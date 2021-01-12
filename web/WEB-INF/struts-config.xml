@@ -44,8 +44,28 @@
                 input="/persView.jsp">
             <forward name="suc" path="/persView.jsp"/>
         </action>
+        <action path="/show"
+                type="com.apex.bank.link.ComDisplatAction"
+                scope="request"
+                validate="true"
+                parameter="method"
+                input="/apex/Asesmnt.jsp"/>
 
-    </action-mappings>
+        <action path="/linkurl"
+                type="com.apex.bank.link.LinkGuideAction"
+                scope="request"
+                validate="true"
+                parameter="method"
+                input="/static-nav-master/LinkGuide.jsp"/>
+        <!--http://localhost:8080/GisMap/webapi/gis/-->
+        <action path="/webapi/gis"
+                type="com.apex.bank.gismap.GisMapAcition"
+                scope="request"
+                parameter="method"/>
+
+
+</action-mappings>
+
     <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
 
     <message-resources parameter="com.application"/>

@@ -29,7 +29,19 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib1" level="project" />
-    <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="lib2" level="project" />
+    <orderEntry type="library" name="zhengweishan-springmvc-jcrop-master" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://F:/TCDemo_Tomcat/LiveBos/FormBuilder/WEB-INF/classes/com/apex/form" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="db" level="project" />
+    <orderEntry type="library" name="antlr" level="project" />
+    <orderEntry type="library" name="servlet-api" level="project" />
   </component>
 </module>

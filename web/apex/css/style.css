@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+.CondStyle {  float: left;left:0;top:0;bottom:0;position:relative;margin-right:8px;height: 100%}
+.CondStyle:before{content:" ";position:absolute;top:0;left:50%;width:2px;height:100%;overflow:hidden;background:#d6efe8;}
+.CondStyle>span{
+    position: relative;
+    display: block;
+    top: 50%;
+    left: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    transform: translateY(-50%);
+    border-radius: 3px;
+    background: #d6efe8;
+    color: #00d166;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 25px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}

@@ -21,3 +21,27 @@
     cursor: pointer;
     user-select: none;
 }
+
+/*覆盖layui自带的高度*/
+/*#input高度*/
+  .layui-form-label {
+      padding: 5px 15px;
+  }
+.layui-input, .layui-select, .layui-textarea {
+    height: 30px;
+    line-height: 30px\9;
+}
+.layui-form-select dl dd, .layui-form-select dl dt {
+    line-height: 30px;
+}
+
+/*//表格行高*/
+  .layui-table-cell{
+      height:36px;
+      line-height: 36px;
+  }
+
+.layui-table-cell-custom {
+    height: auto;
+    line-height: 28px;
+}

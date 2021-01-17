@@ -102,9 +102,10 @@
     <div class="layui-btn-container">
 <%--        <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
         <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+       <button class="layui-btn layui-btn-sm" lay-event="getCheckLength"><i class="layui-icon layui-icon-add-circle-fine" style="font-size:20px;font-weight:bold"></i>新增开门红</button>
         <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
         <button class="layui-btn layui-btn-sm" lay-event="export"><i class="layui-icon"></i>导出</button>
-        <button class="layui-btn layui-btn-sm" lay-event="import"><i class="layui-icon"></i>导入</button>--%>
+        <button class="layui-btn layui-btn-sm layui-btn-dange" lay-event="import"><i class="layui-icon"></i>导入</button>--%>
         <%=toolBarButtons%>
     </div>
 </script>
@@ -145,6 +146,10 @@
             var checkStatus = table.checkStatus(obj.config.id);
 
             switch(obj.event){
+                case 'add':
+                    var data = checkStatus.data;
+                    openForm(layer,data,1,obj);
+                    break;
                 case 'getCheckData':
                     var data = checkStatus.data;
                     layer.alert(JSON.stringify(data));
@@ -166,6 +171,16 @@
                     break;
                 case 'export':
                     exportFile();
+                    break;
+                case 'exportCheck':
+                    var data = checkStatus.data;
+                    exportCheckedFile(data);
+                    break;
+                case 'deleteChecked':
+                    var data = checkStatus.data;
+                    delChecked(layer,data,obj);
+                    break;
+
 
             };
         });
@@ -174,11 +189,12 @@
         table.on('tool(assessmentTblFilter)', function(obj){
             var data = obj.data;
             if(obj.event === 'detail'){
-                layer.msg('ID：'+ data.ID + ' 的查看操作');
+                //layer.msg('ID：'+ data.ID + ' 的查看操作');
+                openForm(layer,data,3,obj);
             } else if(obj.event === 'del'){
-                del(layer,data);
+                del(layer,data,obj);
             } else if(obj.event === 'edit'){
-                openForm(layer,data,2);
+                openForm(layer,data,2,obj);//1新增2修改3查看4删除
             }
 
         });

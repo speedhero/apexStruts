@@ -300,26 +300,6 @@ function importFile() {
         },
         yes:function(index,layero){
             $("#importExcel").click();//模拟上传事件
-            /*      $.getJSON(url+'/BookAction.action?methodName=edit',{
-                      bid: data.bid,
-                      bid: $('#bid').val(),
-                      bname: $('#bname').val(),
-                      price: $('#price').val()
-                  },function(data){
-                      //根据后台返回的参数，来进行判断
-                      if(data>0){
-                          layer.alert('编辑成功',{icon:1,title:'提示'},function(i){
-                              layer.close(i);
-                              layer.close(index);//关闭弹出层
-                              $("#book")[0].reset()//重置form
-                          })
-                          table.reload('demo',{//重载表格
-                              page:{
-                                  curr:1
-                              }
-                          })
-                      }
-                  });*/
         }
     });
 }
@@ -346,6 +326,13 @@ function exportFile() {
             ExportExcel(tableCode,tableName,filed,delList,num,isAll);
         }
     });
+}
+//导出选中数据
+function exportCheckedFile(data) {
+    var excel = layui.excel;
+    data.unshift(filetFields)
+    data = excel.filterExportData(data, fieldCols);
+    excel.exportExcel(data, tableName+'.xlsx', 'xlsx');
 }
 
 
@@ -405,11 +392,31 @@ function ExportExcel(tableCode,tableName,filed,delList,num,isAll) {
 
 
 //编辑的方法
-function  EidtUv(data,value,index,obj,tableCode) {
+function  EidtUv(data,index,obj,layer,type) {
+    var urladdr=url;
+    var IDs=[];
+    var datas=null;
+    if(type==1){
+        datas=JSON.stringify(data);
+        urladdr=url+'addData'+'&tableCode='+tableCode;
+    }else {
+        urladdr=url+'updateData'+'&tableCode='+tableCode;
+        var dataArr=[];
+        dataArr.push(data);
+        IDs.push(data['ID']);
+        datas=JSON.stringify(dataArr);
+
+    }
+
+
     $.ajax({
-        url: url+'updateData'+'&tableCode='+tableCode,
+        url: urladdr,
         type: "POST",
-        data:{"uvid":data.ID,"FTASK_2":value},
+        data:{
+            data:datas,
+            colums:colNames,
+            IDs:IDs
+        },
         dataType: "json",
         success: function(data){
 
@@ -417,9 +424,23 @@ function  EidtUv(data,value,index,obj,tableCode) {
                 //关闭弹框
                 layer.close(index);
                 //同步更新表格和缓存对应的值
-                obj.update({
-                    uv: value
-                });
+                table.reload('assessmentTbl',{
+                    url : url+'getDispalyData'+'&tableCode='+tableCode,
+                    page : {
+                        limit : 10, // 初始 每页几条数据
+                        limits : [ 10, 20, 30 ]
+                        // 可以选择的 每页几条数据
+                    },
+                    where: {tableCode: tableCode, colums:colNames },
+                    parseData: function(res){ //res 即为原始返回的数据
+                        return {
+                            "code": 0, //解析接口状态
+                            "msg": res.msg, //解析提示文本
+                            "count": res.count, //解析数据长度
+                            "data": res.data //解析数据列表
+                        };
+                    }
+                }, 'data');
                 layer.msg("修改成功", {icon: 6});
             }else{
                 layer.msg("修改失败", {icon: 5});
@@ -429,14 +450,18 @@ function  EidtUv(data,value,index,obj,tableCode) {
     });
 }
 
-//当前行数据,类型1新增，2修改
-function openForm(layer,data,type) {
+//当前行数据,类型1新增，2修改 3 查看
+function openForm(layer,data,type,obj) {
+    var btn=['确定', '取消'];
+    if(type==3){
+        btn=[]
+    }
     layer.open({
         type: 2 //Page层类型
         ,skin: 'layui-layer-molv'
-        ,area: ['70%', '70%']
+        ,area: ['60%', '80%']
         ,title: [tableName,'font-size:18px']
-        ,btn: ['确定', '取消']
+        ,btn: btn
         ,shadeClose: false
         ,shade: 0.4 //遮罩透明度
         ,maxmin: true //允许全屏最小化
@@ -444,37 +469,27 @@ function openForm(layer,data,type) {
         ,content:'promotForm.jsp?tablecode='+tableCode+"&openType="+type+"&data="+encodeURIComponent(JSON.stringify(data)) //弹窗路径
        // , scrollbar: false, //屏蔽浏览器滚动条
         ,success:function(layero,index){
-       /*     $('#bid').val(data.bid);
-            $('#bname').val(data.bname);
-            $('#price').val(data.price);*/
         },
         yes:function(index,layero){
-      /*      $.getJSON(url+'/BookAction.action?methodName=edit',{
-                bid: data.bid,
-                bid: $('#bid').val(),
-                bname: $('#bname').val(),
-                price: $('#price').val()
-            },function(data){
-                //根据后台返回的参数，来进行判断
-                if(data>0){
-                    layer.alert('编辑成功',{icon:1,title:'提示'},function(i){
-                        layer.close(i);
-                        layer.close(index);//关闭弹出层
-                        $("#book")[0].reset()//重置form
-                    })
-                    table.reload('demo',{//重载表格
-                        page:{
-                            curr:1
-                        }
-                    })
-                }
-            });*/
+            //模板自带,固定写法,要注意子窗口中的提交按钮id对应submitID
+            var iframeWindow = window['layui-layer-iframe'+ index]//得到iframe页的窗口对象，执行iframe页的方法：
+                ,submitID = 'LAY-user-front-submit'
+                ,submit = layero.find('iframe').contents().find('#'+ submitID);
+            //监听提交
+            iframeWindow.layui.form.on('submit('+ submitID +')', function(data){
+                var field = data.field; //获取提交的字段
+                EidtUv(field,index,obj,layer,type);
+               // layer.close(index); //关闭弹层
+                return false;//return false，这个就可以不再刷新
+            });
+
+            submit.trigger('click');
         }
     });
 }
 
 
-function del(layer,data) {
+function del(layer,data,obj) {
     layer.confirm('真的删除行么', function(index){
         console.log(data);
         $.ajax({
@@ -498,3 +513,37 @@ function del(layer,data) {
         });
     });
 }
+
+function delChecked(layer,checkData,obj) {
+    layer.confirm('真的删除行么', function(index){
+       var delList=[];
+        for (var i = 0; i < checkData.length; i++) {
+            delList.push(checkData[i].ID);
+        }
+        var strify = JSON.stringify(delList);
+        console.log(data);
+        $.ajax({
+            url: url+'deletData'+'&tableCode='+tableCode,
+            type: "POST",
+            data:{
+                datas:strify
+            },
+            dataType: "json",
+            success: function(data){
+
+                if(data.code==0){
+                    //删除这一行
+                    obj.del();
+                    //关闭弹框
+                    layer.close(index);
+                    layer.msg("删除成功", {icon: 6});
+                }else{
+                    layer.msg("删除失败", {icon: 5});
+                }
+            }
+
+        });
+    });
+}
+
+

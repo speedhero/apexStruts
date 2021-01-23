@@ -19,7 +19,7 @@
 		//connection = DataAccess.getDataSource().getConnection();
 		connection = DB2Handle.getConnection();
 		List<Map<String, Object>> urlList = new ArrayList<Map<String, Object>>();
-		String sql = "select * from DC_Carousel_FsrcLink WHERE DC_CAROUSEL_ID="+id;
+		String sql = "select * from DC_Carousel_FsrcLink WHERE DC_CAROUSEL_ID=(select DC_CAROUSEL.ID from DC_Carousel where FGROUPID="+id+")";
 		Statement ps = connection.createStatement();
 
 		ps.executeQuery(sql);

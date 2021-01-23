@@ -45,7 +45,7 @@
             <forward name="suc" path="/persView.jsp"/>
         </action>
         <action path="/show"
-                type="com.apex.bank.link.ComDisplatAction"
+                type="com.apex.bank.link.ComDisplayAction"
                 scope="request"
                 validate="true"
                 parameter="method"

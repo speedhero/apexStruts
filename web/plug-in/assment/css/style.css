@@ -1,0 +1,58 @@
+@charset "utf-8";
+
+.CondStyle {  float: left;left:0;top:0;bottom:0;position:relative;margin-right:8px;height: 100%}
+.CondStyle:before{content:" ";position:absolute;top:0;left:50%;width:2px;height:100%;overflow:hidden;background:#d6efe8;}
+.CondStyle>span{
+    position: relative;
+    display: block;
+    top: 50%;
+    left: 0;
+    right: 0;
+    width: 25px;
+    height: 25px;
+    transform: translateY(-50%);
+    border-radius: 3px;
+    background: #d6efe8;
+    color: #00d166;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 25px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+/*覆盖layui自带的高度*/
+/*#input高度*/
+  .layui-form-label {
+      padding: 5px 15px;
+  }
+.layui-input, .layui-select, .layui-textarea {
+    height: 30px;
+    line-height: 30px\9;
+}
+.layui-form-select dl dd, .layui-form-select dl dt {
+    line-height: 30px;
+}
+
+/*//表格行高*/
+  .layui-table-cell{
+      height:36px;
+      line-height: 36px;
+  }
+
+.layui-table-cell-custom {
+    height: auto;
+    line-height: 28px;
+}
+
+.newlink_right {
+    display: block;
+    cursor: pointer;
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    top: 22px;
+    right: 30px;
+  /*  background: url(../img/icons.png) -48px -96px no-repeat;*/
+}

@@ -1,9 +1,13 @@
 package com.apex.bank.link;
 
+
 import com.apex.bank.sftp.DB2Handle;
+import com.apex.form.DataAccess;
+import com.google.gson.Gson;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,15 @@ public class LayoutUtil {
     public static String divTplEnd="</div>";
     public static String lblTplEnd="</label>";
     public static Map<String,String> flayverifyMap=new HashMap();
+    public static JdbcTemplate  jdbcTemplate=null;
+
+    public static void init() throws SQLException{
+        if(jdbcTemplate==null){
+            jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
+            // jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
+        }
+
+    }
 
     public static void initVerifyMap(){
         //1|Required;2|Phone;3|Email;4|Url;5|Number;6|Data;7|Identity;8|自定义;
@@ -36,10 +49,10 @@ public class LayoutUtil {
     public static Map<String,String> getLayoutGroup(String tableCode) throws SQLException {
         //select B.* from Exa_TableField A,Exa_TableFieldForm B where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021';
         Map<String,String> layouts=new HashMap<>();
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DB2Handle.getDataSource());
-        List<Map<String,Object>> groups =jdbcTemplate.queryForList("select  B.FGROUPNAME " +
+        init();
+        List<Map<String,Object>> groups =jdbcTemplate.queryForList("select  A.FGROUPNAME " +
                 "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode+"'" +
-                "group by B.FGROUPNAME");
+                "group by A.FGROUPNAME");
         if(groups!=null&groups.size()>0){
             String layout="";
             String groupName="";
@@ -84,7 +97,7 @@ public class LayoutUtil {
         String optionsStr="<option value=\"\"></option>";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
                 "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DB2Handle.getDataSource());
+        init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
         // String name="";
@@ -112,7 +125,7 @@ public class LayoutUtil {
         String checkBoxStr="";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
                 "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DB2Handle.getDataSource());
+        init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
         // String name="";
@@ -137,7 +150,7 @@ public class LayoutUtil {
         String radiokBoxStr="";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
                 "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DB2Handle.getDataSource());
+        init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
         // String name="";
@@ -225,17 +238,71 @@ public class LayoutUtil {
             <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="请输入标题" class="layui-input layui-disabled" disabled="disabled" value="nihao">
         </div>
     </div>*/
-    public static String getLayoutGroupItems(String tableCode,String groupName) throws SQLException {
+    public static String getFormShowCloums(String tableCode,String method) throws SQLException{
+        String cloums="";
+        String querySql="select  B.*,A.FFIELDNAME,A.FFIELDTYPE,A.FFIELDCODE " +
+                " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
+                +"' and FMETHODCODE='"+tableCode+"."+method+"'";
+        System.out.println("=====start"+querySql);
+        init();
+        System.out.println("=====end"+querySql);
+        List<String> cloumList=new ArrayList<>();
+        List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
+        if(items!=null&items.size()>0){
+            for(int i=0;i<items.size();i++){
+                Map<String,Object> map= items.get(i);
+                int fishide=Integer.parseInt(map.get("FISHIDE")==null?"0":map.get("FISHIDE").toString());//0|否;1|是
+                if(fishide==0){
+                    String fieldCode=map.get("FFIELDCODE").toString().toUpperCase();//转大写统一
+                    cloumList.add(fieldCode);
+                }
+            }
+            Gson gson=new Gson();
+            cloums= gson.toJson(cloumList);
+        }
+        return  cloums;
+    }
+
+    public static String getFormShowField(String tableCode,String method) throws SQLException{
+        String cloums="";
+        String querySql="select  B.*,A.FFIELDNAME,A.FFIELDTYPE,A.FFIELDCODE " +
+                " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
+                +"' and FMETHODCODE='"+tableCode+"."+method+"'";
+        init();
+        Map<String,String> cloumMap=new HashMap();
+        List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
+        if(items!=null&items.size()>0){
+            for(int i=0;i<items.size();i++){
+                Map<String,Object> map= items.get(i);
+                int fishide=Integer.parseInt(map.get("FISHIDE")==null?"0":map.get("FISHIDE").toString());//0|否;1|是
+                if(fishide==0){
+                    String fieldCode=map.get("FFIELDCODE").toString().toUpperCase();//转大写统一
+                    String fieldname=map.get("FFIELDNAME")==null?"":map.get("FFIELDNAME").toString();
+                    cloumMap.put(fieldCode,fieldname);
+                }
+            }
+            Gson gson=new Gson();
+            cloums= gson.toJson(cloumMap);
+        }
+        return  cloums;
+    }
+
+
+
+
+    public static String getLayoutGroupItems(String tableCode,String method,String groupName) throws SQLException {
         //select B.* from Exa_TableField A,Exa_TableFieldForm B where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021';
         String layouts="";
+        jdbcTemplate.update("update Exa_TableField set  FGROUPNAME=null where FGROUPNAME=''");//清除groupName为空的
         String querySql="select  B.*,A.FFIELDNAME,A.FFIELDTYPE,A.FFIELDCODE " +
-                " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode+"' and FGROUPNAME ";
+                " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
+                +"' and FMETHODCODE='"+tableCode+"."+method+"' and A.FGROUPNAME ";
         if(groupName==null||groupName==""){
            querySql=querySql+" IS NULL ORDER BY A.FSEQ";
         }else {
             querySql=querySql+"='"+groupName+"' ORDER BY A.FSEQ";
         }
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(DB2Handle.getDataSource());
+        init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         if(items!=null&items.size()>0){
             for(int i=0;i<items.size();i++){
@@ -270,22 +337,25 @@ public class LayoutUtil {
     }
 
 
-    public static  String getFormLayout(String tableCode) throws SQLException{
+    public static  String getFormLayout(String tableCode,String method) throws SQLException{
         //select B.* from Exa_TableField A,Exa_TableFieldForm B where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021';
         String layoutForm="";
-        layoutForm=layoutForm+getLayoutGroupItems(tableCode,null);
+        layoutForm=layoutForm+getLayoutGroupItems(tableCode,method,null);
         Map<String,String> group=LayoutUtil.getLayoutGroup(tableCode);
         for(Map.Entry<String, String> entry : group.entrySet()){
             String groupName = entry.getKey();
             String groupLayout = entry.getValue();
             System.out.println(groupName+":"+groupLayout);
-            layoutForm=layoutForm+groupLayout+getLayoutGroupItems(tableCode,groupName);
+            layoutForm=layoutForm+groupLayout+getLayoutGroupItems(tableCode,method,groupName);
         }
         return layoutForm;
     }
 
     public static void main(String[] args) throws Exception {
         //System.out.println(LayoutUtil.getLayoutGroup("KMH_LXSR_2021")); ;
-        System.out.println(LayoutUtil.getFormLayout("KMH_LXSR_2021")); ;
+        //System.out.println(LayoutUtil.getFormLayout("KMH_LXSR_2021","add"));
+        //System.out.println(LayoutUtil.getFormShowCloums("KMH_LXSR_2021","import"));
+        System.out.println(LayoutUtil.getFormShowField("KMH_LXSR_2021","import"));
+
     }
 }

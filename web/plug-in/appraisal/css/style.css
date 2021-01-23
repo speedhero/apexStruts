@@ -1,0 +1,31 @@
+@charset "utf-8";
+.circle{
+    float: left;
+    width: 110px;
+    text-align:center;
+    display: inline;
+}
+
+
+
+*{margin:0;padding:0;}/*font-size:18px;*/
+body{background:none;}
+input,button,select,textarea{outline:none;}
+ul,li,dl,ol{list-style:none;}
+a{color:#666;text-decoration:none;}
+
+/* bcon */
+.bcon{width:320px;border:1px solid #eee;margin:30px auto;}
+.bcon h2{border-bottom:1px solid #eee;padding:0 8px;background-color: #15b295;color: aliceblue}
+.bcon h2 b{font:bold 14px/40px '宋体';border-top:2px solid #3492D1;padding:0 8px;margin-top:-1px;display:inline-block;}
+.list_lh{height:450px;overflow:hidden;}
+.list_lh li{padding:8px;}
+.list_lh li.lieven{background:#F0F2F3;}
+.list_lh li p{height:30px;line-height:30px;}
+.list_lh li p a{height:18px;line-height:18px;}
+.list_lh li p em{width:80px;font:normal 18px/24px Arial;color:#FF3300;display:inline-block;padding-left: 38px}/*float:right;*/
+.list_lh li p span{height:26px;line-height:26px;}/*float:right;*/
+.list_lh li p span.btn_lh{background:#28BD19;height:27px;line-height:27px;color:#fff;padding:0 5px;margin-top:4px;display:inline-block;float:right;}
+.btn_lh:hover{color:#fff;text-decoration:none;}
+.basestyle{margin-left: 26px;background:#aaeaa4;color:#6e6ade;}
+.sp1{font-weight: bold}

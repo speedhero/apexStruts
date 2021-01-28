@@ -1,5 +1,5 @@
 
-function initPageAss(jsonActArr,jsonNameArr,jsonTrgArr,pageArr) {
+function initPageAss(jsonActArr,jsonNameArr,jsonTrgArr,pageArr,ftitle) {
     var myChart = echarts.init(document.getElementById('main'));
 
     // 指定图表的配置项和数据
@@ -16,7 +16,7 @@ function initPageAss(jsonActArr,jsonNameArr,jsonTrgArr,pageArr) {
         options:[
             {
                 title : {
-                    'text':'开门红储蓄存款日均'
+                    'text':ftitle
                 },
                 tooltip : {'trigger':'axis'},
              /*   tooltip : {
@@ -81,11 +81,15 @@ function initPageAss(jsonActArr,jsonNameArr,jsonTrgArr,pageArr) {
     console.log(option);
 }
 
-function initSlider(jsonNameArr,percentArr) {
+function initSlider(jsonNameArr,percentArr,colorList,isSlider,ftitle) {
     var myChart = echarts.init(document.getElementById('main'));
-
+    var colorList= colorList;
     // 指定图表的配置项和数据
     var option = {
+        title : {
+            'text':ftitle,
+            left:'center'
+        },
         color: ['#3398DB'],
         tooltip : {
             trigger: 'axis',
@@ -114,7 +118,7 @@ function initSlider(jsonNameArr,percentArr) {
                 axisTick: {
                     alignWithLabel: true
                 },
-                show: false
+                show: true
             }
         ],
         yAxis : [
@@ -134,7 +138,7 @@ function initSlider(jsonNameArr,percentArr) {
                     normal: {
                         color: function(params) {
                             // build a color map as your need.
-                            var colorList = [
+                     /*       var colorList = [
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B',
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B',
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B',
@@ -146,14 +150,22 @@ function initSlider(jsonNameArr,percentArr) {
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B',
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B',
                                 '#C1232B','#B5C334','#fc877d','#e81c50','#27727B'
-                            ];
-                            return colorList[params.dataIndex]
+                            ];*/
+                            return colorList[params.dataIndex%colorList.length];
                         },
                         label: {
                             show: true,
                             position: 'bottom',
                             formatter: '{b}\n{c}%'　　　　//这是关键，在需要的地方加上就行了
                         }
+                    }
+                },
+                label: {
+                    normal: {
+                        position: 'top',
+                        show: true,
+                       // color: 'white',
+                        formatter: '{c}%'
                     }
                 },
                 data:percentArr,
@@ -166,7 +178,8 @@ function initSlider(jsonNameArr,percentArr) {
 
 
                     },*/
-                    data : [{
+                    data : [
+        /*                {
 
                         silent:false,             //鼠标悬停事件  true没有，false有
                         lineStyle:{               //警戒线的样式  ，虚实  颜色
@@ -179,12 +192,12 @@ function initSlider(jsonNameArr,percentArr) {
                         },
                         yAxis:60         // 警戒线的标注值，可以有多个yAxis,多条警示线   或者采用   {type : 'average', name: '平均值'}，type值有  max  min  average，分为最大，最小，平均值
 
-                    },
+                    },*/
                         {
 
                             silent:false,             //鼠标悬停事件  true没有，false有
                             lineStyle:{               //警戒线的样式  ，虚实  颜色
-                                type:"solid",
+                                type:"dotted",
                                 color:"#FA3934",
 
                             },
@@ -196,7 +209,7 @@ function initSlider(jsonNameArr,percentArr) {
                             yAxis:100          // 警戒线的标注值，可以有多个yAxis,多条警示线   或者采用   {type : 'average', name: '平均值'}，type值有  max  min  average，分为最大，最小，平均值
 
                         },
-                        {
+                /*        {
 
                             silent:false,             //鼠标悬停事件  true没有，false有
                             lineStyle:{               //警戒线的样式  ，虚实  颜色
@@ -211,13 +224,13 @@ function initSlider(jsonNameArr,percentArr) {
                             },
                             yAxis:110          // 警戒线的标注值，可以有多个yAxis,多条警示线   或者采用   {type : 'average', name: '平均值'}，type值有  max  min  average，分为最大，最小，平均值
 
-                        }
+                        }*/
                     ]
                 }
             }
         ],
         dataZoom: {
-            show: true, // 为true 滚动条出现
+            show: isSlider, // 为true 滚动条出现
             realtime: true,
             type:'slider', // 有type这个属性，滚动条在最下面，也可以不行，写y：36，这表示距离顶端36px，一般就是在图上面。
             height: 20, // 表示滚动条的高度，也就是粗细
@@ -404,7 +417,7 @@ function renderCatlogDate() {
     };
 }
 
-function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr) {
+function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr,isSlider) {
 
     var colorArr =["#DDA0DD","#87CEFA","#CD5C5C","#DDA0DF","#87CEEA","#CD5CFC"];
     var seriesOpt=[];
@@ -415,6 +428,14 @@ function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr) {
             type:'bar',
             data:actualtArr[i],
             barWidth : '50%',
+            label: {
+                normal: {
+                    position: 'top',
+                    show: true,
+                    // color: 'white',
+                    formatter: '{c}'
+                }
+            }
 
         });
         seriesOpt.push(    {
@@ -428,6 +449,14 @@ function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr) {
                     color:colorArr[i%6]
                 }
 
+            },
+            label: {
+                normal: {
+                    position: 'top',
+                    show: true,
+                    // color: 'white',
+                    formatter: '{c}%'
+                }
             }
         });
     }
@@ -528,72 +557,8 @@ function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr) {
  //每个设备分数量、概率2个指标，只要让他们的name一致，即可通过，legeng进行统一的切换
 
         series:seriesOpt
-       /* [
-        {
-            name:'设备一',
-            type:'bar',
-            data:[900,800,700,680,650,640,600,570,680,650,640,600,570,
-                450,400,380,300],
-            barWidth : '50%',
-
-        },
-        {
-            name:'设备一',
-            type:'line',
-            yAxisIndex: 1,    //这里要设置哪个y轴，默认是最左边的是0，然后1，2顺序来。
-            data:[75,65,85,66,45,55,56,42,78,69,70,36,42,50,65,75,80],
-            symbolSize:10,
-            itemStyle:{
-                normal:{
-                    color:"#DDA0DD"
-                }
-
-            }
-        },
-        {
-            name:'设备二',
-            type:'bar',
-            data:[700,680,650,640,600,570,680,650,640,600,570,
-                450,400,380,300,900,800],
-            barWidth : '50%',
-        },
-        {
-            name:'设备二',
-            type:'line',
-            yAxisIndex: 1,
-            data:[75,65,85,66,45,55,56,42,78,69,70,36,42,50,65,75,80],
-            symbolSize:10,
-            itemStyle:{
-                normal:{
-                    color:"#87CEFA"
-                }
-
-            }
-        },
-        {
-            name:'设备三',
-            type:'bar',
-            data:[600,570,680,650,640,600,570,
-                450,400,380,300,900,800,700,680,650,640,],
-
-            barWidth : '50%',
-        },
-        {
-            name:'设备三',
-            type:'line',
-            yAxisIndex: 1,
-            data:[75,65,85,66,45,55,56,42,78,69,70,36,42,50,65,75,80],
-            symbolSize:10,
-            itemStyle:{
-                normal:{
-                    color:"#CD5C5C"
-                }
-
-            }
-        }
-    ]*/
        ,dataZoom: {
-               show: true, // 为true 滚动条出现
+               show: isSlider, // 为true 滚动条出现
                realtime: false,
                type:'slider', // 有type这个属性，滚动条在最下面，也可以不行，写y：36，这表示距离顶端36px，一般就是在图上面。
                height: 20, // 表示滚动条的高度，也就是粗细
@@ -608,13 +573,24 @@ function renderGroupCharts(sonNameArr,percentArr,actualtArr,groupArr) {
 }
 
 
-function renderZline(groupArr,jsonNameArr,percentArr,pageArr) {//折线图
+function renderZline(groupArr,jsonNameArr,jsonTrgArr,actualtArr,percentArr,ftitle,isSlider) {//折线图
     // 获取到这个DOM节点，然后初始化
+    var nameArr=[];
+    var catgroupArr=[];
+    var colors=['red','orange','green'];
+    for(i=0;i<groupArr.length;i++){
+        nameArr.push(groupArr[i]);
+        catgroupArr.push(groupArr[i]);
+       // nameArr.push('应达'+groupArr[i]);
+       // nameArr.push('实际'+groupArr[i]);
+       // catgroupArr.push('应达'+groupArr[i]);
+       // catgroupArr.push('实际'+groupArr[i]);
+    }
     var myChart = echarts.init(document.getElementById("main"));
-    var options = {
+    var option = {
         // 标题
         title: {
-            text: '贷款营销任务表',
+            text: ftitle,
             subtext: '数据来源：邳州农商行'
         },
         tooltip: {
@@ -622,7 +598,11 @@ function renderZline(groupArr,jsonNameArr,percentArr,pageArr) {//折线图
         },
         //图例名
         legend: {
-            data:groupArr   //['任务户数','已达户数','任务时点','已达时点','任务日均','已达日均']
+            orient: 'horizontal',//vertical
+            x:'right',      //可设定图例在左、右、居中
+            y:'center',     //可设定图例在上、下、居中
+            padding:[0,50,0,0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+            data:catgroupArr   //['任务户数','已达户数','任务时点','已达时点','任务日均','已达日均']
         },
         grid: {
             left: '3%',   //图表距边框的距离
@@ -640,7 +620,7 @@ function renderZline(groupArr,jsonNameArr,percentArr,pageArr) {//折线图
         xAxis: {
             type: 'category',
             boundaryGap: false,
-            data: jsonNameArr,  //['支行1','支行2','支行3','支行4','支行5','支行6','支行7','支行8','支行9','支行10','支行11','支行12','支行13','支行14'],
+            data: jsonNameArr,
             //坐标轴颜色
             axisLine:{
                 lineStyle:{
@@ -658,151 +638,87 @@ function renderZline(groupArr,jsonNameArr,percentArr,pageArr) {//折线图
             {
                 type : 'value',
                 axisLabel : {
-                    formatter: '{value} 人'
+                    formatter: '{value} 任务数'
                 }
             }
         ],
-        series: [
-            //虚线
-            {
-                name:'任务户数',
-                type:'line',
-                symbolSize:4,   //拐点圆的大小
-                color:['red'],  //折线条的颜色
-                data:[1000, 300, 500, 800, 300, 600,500,800, 300, 500, 800, 300, 600,500],
-                smooth:false,   //关键点，为true是不支持虚线的，实线就用true
-                itemStyle:{
-                    normal:{
-                        lineStyle:{
-                            width:2,
-                            type:'dotted'  //'dotted'虚线 'solid'实线
-                        }
-                    }
-                }
-            },
-            //实线
-            {
-                name:'已达户数',
-                type:'line',
-                symbol:'circle',
-                symbolSize:4,
-                itemStyle:{
-                    normal:{
-                        color:'red',
-                        borderColor:'red'  //拐点边框颜色
-                    }
-                },
-                data:[220, 182, 191, 234, 290, 330, 310,220, 182, 191, 234, 290, 330, 310]
-            },
-            {
-                name:'任务时点',
-                type:'line',
-//                stack: '总量',
-                symbolSize:4,
-                color:['orange'],
-                smooth:false,   //关键点，为true是不支持虚线的，实线就用true
-                itemStyle:{
-                    normal:{
-                        lineStyle:{
-                            width:2,
-                            type:'solid'  //'dotted'虚线 'solid'实线
-                        }
-                    }
-                },
-                data:[500, 232, 201, 154, 190, 330, 410,150, 232, 201, 154, 190, 330, 410]
-            },
-            {
-                name:'已达时点',
-                type:'line',
-                symbolSize:4,
-                color:['orange'],
-                itemStyle:{
-                    normal:{
-                        lineStyle:{
-                            width:2,
-                            type:'dotted'  //'dotted'虚线 'solid'实线
-                        }
-                    }
-                },
-                data:[300, 232, 201, 154, 190, 330, 410,150, 232, 201, 154, 190, 330, 410]
-            },
-            {
-                name:'任务日均',
-                type:'line',
-                color:['green'],
-                symbol:'circle',
-                symbolSize:4,
-                data:[310, 352, 280, 334, 373, 310, 340,300, 350, 280, 350, 340, 370, 310],
-                itemStyle:{
-                    normal:{
-                        color:'green',
-                        borderColor:'green'
-                    }
-                }
-            },
-            {
-                name:'已达日均',
-                type:'line',
-                color:['green'],
-                symbol:'circle',
-                symbolSize:4,
-                data:[300, 342, 380, 334, 373, 310, 390,300, 320, 380, 450, 370, 33, 320],
-                itemStyle:{
-                    normal:{
-                        lineStyle:{
-                            width:2,
-                            type:'dotted'  //'dotted'虚线 'solid'实线
-                        }
-                    },
-
-                }
-            }
-        ]
+        dataZoom: {
+            show: isSlider, // 为true 滚动条出现
+            realtime: true,
+            type:'slider', // 有type这个属性，滚动条在最下面，也可以不行，写y：36，这表示距离顶端36px，一般就是在图上面。
+            height: 20, // 表示滚动条的高度，也就是粗细
+            start: 20, // 表示默认展示20%～80%这一段。
+            end: 50,
+            top:"10%"
+        }
     };
 
-    var option={
-        timeline:{
-            data:pageArr,
-            label : {
-                formatter : function(s) { return "第"+s+"页"; }
-            },
-            autoPlay : true,
-            playInterval : 2000,
-            tooltip:{formatter : function(s) {return "第"+s.value+"页"; }}
-        },
-        options:[options]
 
-    }
-/*
-
-    for(i=1;i<pageArr.length;i++){//去除第一组
-        option['options'].push( {
-            series : [
-                {'data': jsonTrgArr[i]},
-                {'data': jsonActArr[i]}
-            ],
-            xAxis:[{'data':jsonNameArr[i]}]
-        })
-    }
-*/
 
     var series=[];
-    for(i=0;i<percentArr.length;i++){
-        series.push(percentArr[i]);
+    for(i=0;i<groupArr.length;i++){
+        series.push({//虚线
+            name:groupArr[i],
+            type:'line',
+            symbolSize:4,   //拐点圆的大小
+            color:[colors[i]],  //折线条的颜色
+            data:percentArr[i],
+            smooth:false,   //关键点，为true是不支持虚线的，实线就用true
+            itemStyle:{
+                normal:{
+                    lineStyle:{
+                        width:2,
+                        type:'dotted'  //'dotted'虚线 'solid'实线
+                    }
+                }
+            }
+        });
+/*        series.push({//虚线
+            name:'应达'+groupArr[i],
+                type:'line',
+            symbolSize:4,   //拐点圆的大小
+            color:[colors[i]],  //折线条的颜色
+            data:jsonTrgArr[i],
+            smooth:false,   //关键点，为true是不支持虚线的，实线就用true
+            itemStyle:{
+                    normal:{
+                        lineStyle:{
+                            width:2,
+                                type:'dotted'  //'dotted'虚线 'solid'实线
+                        }
+                      }
+                    }
+        });
+        series.push({//实线
+                name:'实际'+groupArr[i],
+                type:'line',
+                symbol:'circle',
+                symbolSize:4,
+                itemStyle:{
+                    normal:{
+                        color:colors[i],
+                        borderColor:colors[i]  //拐点边框颜色
+                    }
+                },
+                data:actualtArr[i]
+            });*/
+        //series.push(percentArr[i]);
+       // series.push(jsonTrgArr[i]);
+        //series.push(actualtArr[i]);
     }
 
-    option['options'].push( {
-        series :series  ,
-     /*       [
+    option.series=series;
+/*    {
+        series :  ,
+            [
             {'data':  [1000, 300, 500, 800, 300, 600,500,800, 300, 500, 800, 300, 600,500]},
             {'data': [220, 182, 191, 234, 290, 330, 310,220, 182, 191, 234, 290, 330, 310]},
             {'data': [300, 232, 201, 154, 190, 330, 410,150, 232, 201, 154, 190, 330, 410]},
             {'data': [310, 352, 280, 334, 373, 310, 340,300, 350, 280, 350, 340, 370, 310]},
             {'data': [500, 232, 201, 154, 190, 330, 410,150, 232, 201, 154, 190, 330, 410]},
             {'data': [500, 232, 201, 154, 190, 330, 410,150, 232, 201, 154, 190, 330, 410]}
-        ],*/
-        xAxis:[{'data':jsonNameArr}]
-    });
+        ],
+    });*/
 
     myChart.setOption(option);
 
@@ -815,9 +731,24 @@ function renderZline(groupArr,jsonNameArr,percentArr,pageArr) {//折线图
  * @param {JSON} ratio 占比数据
  * @param {JSON} surplus 剩余数据
  */
-function drawPercentage(yData,ratio,surplus){
+function drawPercentage(yData,ratio,surplus,isSlider){
     var myChart = echarts.init(document.getElementById('main'));
     var option = {
+        title : {
+            'text':ftitle,
+             left:'center'
+        },
+        tooltip : {
+            trigger: 'axis',
+            axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            },
+            // formatter:'{c}%'　　　　//这是关键，在需要的地方加上就行了
+            formatter: function(params) {
+                params=params[0];
+                return '任务值:'+params.data.ftask + '</br>' + '实际值：' + params.data.factual + '</br>' + '应达值：' + params.data.ftarget + '<br/>'  + '完成率：' + params.value+'%' ;
+            }
+        },
         grid: {
             left: '8%',
             right: '8%',
@@ -863,6 +794,7 @@ function drawPercentage(yData,ratio,surplus){
                 stack: 'chart',
                 z: 3,
                 barWidth: '20',
+                barGap: '100%',//间隔
                 itemStyle: {
                     normal: {
                         color: new echarts.graphic.LinearGradient(1,
@@ -911,12 +843,42 @@ function drawPercentage(yData,ratio,surplus){
                 type: 'bar',
                 stack: 'chart',
                 barWidth: '20',
+                barGap: '100%',//间隔
                 itemStyle: {
                     normal: {
                         color: '#0D2253'
                     }
                 },
                 data: surplus
+            }],
+        dataZoom:[               //Y轴滑动条
+            {
+                type: 'slider', //滑动条
+                show: isSlider,      //开启
+                yAxisIndex: [0],
+                left: '93%',  //滑动条位置
+                start: 0,    //初始化时，滑动条宽度开始标度
+                end: 40  ,
+                width:'6',
+                fillerColor: new echarts.graphic.LinearGradient(1, 0, 0, 0, [{
+                    offset: 0,
+                    color: '#3E86FF'
+                }, {
+                    offset: 1,
+                    color: '#47ACE7'
+                }]),
+                // handleIcon:'image://https://csdnimg.cn/medal/qixiebiaobing4@240.png',
+                borderColor: "transparent",
+                backgroundColor: 'white',//两边未选中的滑动条区域的颜色
+                showDataShadow: false,//是否显示数据阴影 默认auto
+                showDetail: false,//即拖拽时候是否显示详细数值信息 默认true
+            },
+            {
+                type:'inside',
+                yAxisIndex:0,
+                zoomOnMouseWheel:false,  //滚轮是否触发缩放
+                moveOnMouseMove:true,  //鼠标滚轮触发滚动
+                moveOnMouseWheel:true
             }]
     }
     myChart.setOption(option);

@@ -1,20 +1,15 @@
 package com.apex.bank.link;
 
 
-import com.apex.bank.sftp.DB2Handle;
+import com.apex.bank.util.MapUtil;
 import com.apex.form.DataAccess;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,8 +24,8 @@ public class ComDisplayAction extends DispatchAction {
 
     public static void init() throws SQLException{
         if(jdbcTemplate==null){
-           jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
-            //jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
+           //jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
+            jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
         }
 
     }
@@ -175,8 +170,6 @@ public class ComDisplayAction extends DispatchAction {
             List datalist = gson.fromJson(data, new TypeToken<List>(){}.getType());
             if(data!=null&&data!=""){
                 if(colums.length>0){
-
-
                     try {
 
                         System.out.println(datalist);
@@ -187,7 +180,6 @@ public class ComDisplayAction extends DispatchAction {
                         if(isapend==0){//1是追加 0 是清空数据
                             jdbcTemplate.update("delete from "+tableCode+tabelstr+"");
                         }
-
                         String sqlFiled="";
                         String sqlValue=""+maxId+",";
                         String sqliInner = "INSERT INTO "+tableCode+tabelstr+" ( ID," ;
@@ -196,7 +188,7 @@ public class ComDisplayAction extends DispatchAction {
                            String editType="";
                            try{
                                for(Map columInfo:columInfos){
-                                    field    =  columInfo.get("FFieldCode").toString();
+                                    field    =  columInfo.get("FFieldCode").toString().toUpperCase();
                                     editType = columInfo.get("FFieldType").toString();
 
                                    sqlFiled=sqlFiled+" "+field+" ,";
@@ -234,17 +226,39 @@ public class ComDisplayAction extends DispatchAction {
                            count++;
 
                        }
+
+                        msg="共"+count+"条插入成功<br/>";
+
+                       Map retSpMap=null;
                        if(importCheckData==1){
+                           String cloumsSTR="";
+                           for(String cloum:colums){
+                               cloumsSTR=cloumsSTR+cloum+";";
+                           }
+                           cloumsSTR=cloumsSTR.substring(0,cloumsSTR.lastIndexOf(";"));
                            Map proc=jdbcTemplate.queryForMap("SELECT FPROCEDURE FROM Exa_Table where FCODE='"+tableCode+"'");
-                           if(proc!=null&&proc.get("FPROCEDURE")!=null){
+                           if("".equalsIgnoreCase(MapUtil.getKeyString(proc,"FPROCEDURE",""))){
+                               // jdbcTemplate.execute("call sp_ImportData_Deal()");
+                               retSpMap= DataTblUtil.execProcedure(tableCode,"sp_ImportData_Deal",cloumsSTR);
+                           }else {
                                String procedure=proc.get("FPROCEDURE").toString();
-                               jdbcTemplate.execute("call "+procedure+"()");
+                               retSpMap= DataTblUtil.execProcedure(tableCode,procedure,cloumsSTR);
+
+                           }
+                           if(MapUtil.getKeyInt(retSpMap,"o_Ret",-1)>0){
+                               code=0;
+                               msg=msg+retSpMap.get("o_Msg").toString();
+                           }else {
+                               code=-1;
+                               msg=retSpMap.get("o_Msg").toString();
                            }
                        }
 
+
+
                         retMap.put("count",count);
-                        retMap.put("code",0);
-                        retMap.put("msg","共"+count+"条插入成功<br/>"+msg);
+                        retMap.put("code",code);
+                        retMap.put("msg",msg);
                     }catch (Exception e) {
                         e.printStackTrace();
                         retMap.put("code",1);
@@ -410,6 +424,119 @@ public class ComDisplayAction extends DispatchAction {
     }
 
 
+    public ActionForward importUpdateExcel(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception{
+        request.setCharacterEncoding("utf-8");
+        response.setContentType("text/json;charset=utf-8");//注意设置为json，如果为xml，则设为xml
+        int  code=0;
+        String msg="";
+        int count=0;
+        Map retMap=new HashMap();
+        retMap.put("code",code);
+        retMap.put("msg",msg);
+        retMap.put("count",count);
+        retMap.put("data",null);
+        PrintWriter pw=response.getWriter();
+        String[] colums= request.getParameterMap().get("colums[]")==null?null:(String[])request.getParameterMap().get("colums[]");
+        String tableCode= request.getParameter("tableCode");
+        init();
+        int isapend=Integer.parseInt(request.getParameter("isapend")) ;
+        int importCheckData= Integer.parseInt(request.getParameter("importCheckData") );
+        String tabelstr=importCheckData==1?"_TEMP ":"";
+
+        Gson gson=new Gson();
+        String data= request.getParameter("data") ;
+        List datalist = gson.fromJson(data, new TypeToken<List>(){}.getType());
+        if(data!=null&&data!=""){
+            if(colums.length>0){
+                try {
+
+                    //String sql = "INSERT INTO tableCode(`name`,`area`) VALUES (?,?)";
+
+                    List<Map<String,Object>> columInfos= DataTblUtil.getColumInfos(tableCode,colums);
+                    long maxId=jdbcTemplate.queryForInt("select NVL(max(ID),0)+1 MAXID from "+tableCode+tabelstr);
+                    if(isapend==0){//1是追加 0 是清空数据
+                        jdbcTemplate.update("delete from "+tableCode+tabelstr+"");
+                    }
+                    String sqlFiled="";
+                    String sqlValue=""+maxId+",";
+                    String sqliInner = "INSERT INTO "+tableCode+tabelstr+" ( ID," ;
+
+                    for(int j=0;j<datalist.size();j++){
+                        String field="";
+                        String editType="";
+                        try{
+                            for(Map columInfo:columInfos){
+                                field    =  columInfo.get("FFieldCode").toString();
+                                editType =  columInfo.get("FFieldType").toString();
+
+                                sqlFiled=sqlFiled+" "+field+" ,";
+                                String fieldValue="";
+                          /*      if(((Map)datalist.get(j)).get(field)==null) {
+                                    fieldValue="null";
+                                }else {
+                                    fieldValue=((Map)datalist.get(j)).get(field).toString().trim();
+                                }
+*/
+                                fieldValue= MapUtil.getKeyString(((Map)datalist.get(j)),field,"null").trim();
+
+                                //1|文本类型;2|数值类型;3|日期类型;4|大数据类型;{
+                                if("1".equalsIgnoreCase(editType)) {
+                                    sqlValue=sqlValue+" '"+fieldValue+"' ,";
+                                }else if("2".equalsIgnoreCase(editType)) {
+                                    if("".equalsIgnoreCase(fieldValue)){
+                                        sqlValue=sqlValue+" null ,";
+                                    }else{
+                                        sqlValue=sqlValue+" "+fieldValue+" ,";
+                                    }
+                                }else if("3".equalsIgnoreCase(editType)) {
+                                    sqlValue=sqlValue+" '"+fieldValue+"' ,";
+                                }
+                            }
+                            sqlFiled=sqlFiled.substring(0,sqlFiled.lastIndexOf(","));
+                            sqlValue=sqlValue.substring(0,sqlValue.lastIndexOf(","));
+                            sqliInner=sqliInner+sqlFiled+") VALUES ("+ sqlValue+")";
+                            jdbcTemplate.update(sqliInner);
+                            maxId++;
+                            sqlFiled="";
+                            sqlValue=maxId+",";
+                            sqliInner = "INSERT INTO "+tableCode+tabelstr+"( ID," ;
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            msg=msg+"第"+j+"条插入失败<br/>";
+                        }
+                        count++;
+
+                    }
+                    if(importCheckData==1){
+                        Map proc=jdbcTemplate.queryForMap("SELECT FPROCEDURE FROM Exa_Table where FCODE='"+tableCode+"'");
+                        if(proc!=null&&proc.get("FPROCEDURE")!=null){
+                            String procedure=proc.get("FPROCEDURE").toString();
+                            jdbcTemplate.execute("call "+procedure+"()");
+                        }
+                    }
+
+                    retMap.put("count",count);
+                    retMap.put("code",0);
+                    retMap.put("msg","共"+count+"条插入成功<br/>"+msg);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    retMap.put("code",1);
+                    retMap.put("msg","插入出错");
+                }finally{
+                    String string = new Gson().toJson(retMap);
+                    // JsonArray jsonArray = new JsonParser().parse(string).getAsJsonArray();
+                    PrintWriter out=response.getWriter();
+                    System.out.println(string);
+                    out.print(string);
+                    out.flush();
+                }
+            }
+
+        }
+        return null;
+    }
+
+
     public ActionForward updateData(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception{
         request.setCharacterEncoding("utf-8");
         response.setCharacterEncoding("utf-8");
@@ -436,7 +563,6 @@ public class ComDisplayAction extends DispatchAction {
         try {
             if(data!=null&&data!=""){
                 if(colums.length>0){
-                    System.out.println(datalist);
                   List<Map<String,Object>> columInfos= DataTblUtil.getColumInfos(tableCode,colums);;
 
                     String sqlFiled="";

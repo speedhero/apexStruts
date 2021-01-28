@@ -1,4 +1,4 @@
-package com.apex.bank;
+package com.apex.bank.util;
 
 import java.util.*;
 
@@ -288,6 +288,23 @@ public class MapUtil {
             return value;
         }
         value=map.get(key).toString();
+        return value;
+    }
+
+
+    public static Integer getKeyInt(Map<String, Object> map,String key,int defaultValue){
+
+        Integer value = 0;
+        Object val= map.get(key);
+        if(val==null){
+            value=defaultValue;
+            return value;
+        }
+        if("".equalsIgnoreCase(val.toString())){
+            value=defaultValue;
+            return value;
+        }
+        value=Integer.parseInt(map.get(key).toString());
         return value;
     }
 

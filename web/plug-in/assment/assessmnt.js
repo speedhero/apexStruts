@@ -2,6 +2,7 @@
 
 var colNames=[];
 var filetFields={};
+var filetNameFields={};
 var fieldCols=[];
 var columnData=[];
 var combingStr='and';
@@ -57,6 +58,7 @@ function CreateTalbeCols(dataArry,isColNumber,isCheckbox,operate) {
         if(!ishide){//设置用于导入导出的字段,隐藏的属性不支持导入导出
             fieldCols.push(ffieldcode.toUpperCase());
             filetFields[ffieldcode.toUpperCase()]=ffieldname;
+            filetNameFields[ffieldname]=ffieldcode.toUpperCase();
         }
 
         columnData.push(columnSrc);
@@ -95,7 +97,8 @@ function init(tablejsonstring,jsonstring,tableCodeStr,tableNameStr,filedjsonStr,
 
 
     layui.use(['table','upload', 'form','laydate'], function(){
-        table = layui.table;
+        table = layui.table,
+            form = layui.form;
         table.render({
              elem: '#assessmentTbl'
             ,totalRow: true
@@ -130,6 +133,7 @@ function init(tablejsonstring,jsonstring,tableCodeStr,tableNameStr,filedjsonStr,
         });
 
        bindArea(table);
+       bindTblForm(form);
         //条件区域事件
         queryCondintionArea(layui);
     });

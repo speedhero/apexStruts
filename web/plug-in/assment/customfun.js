@@ -132,7 +132,6 @@ function queryCondintionArea(layui) {
             }
             ,id:'assessmentTbl'
         });
-
     });
 }
 
@@ -165,7 +164,7 @@ function ImportExcel(){//tableCode,filedjsonstring
                         delete files[index];
                     }
                 }
-                uploadExcel(fileArr,tableCode,filedjsonstring); // 如果只需要最新选择的文件，可以这样写： uploadExcel([files.pop()])
+                uploadExcel(fileArr,tableCode); // 如果只需要最新选择的文件，可以这样写： uploadExcel([files.pop()])
 
             },
             done: function(res){
@@ -187,50 +186,54 @@ function ImportExcel(){//tableCode,filedjsonstring
 }
 
 
-function uploadExcel(files,tableCode,filed) {
+function uploadExcel(files,tableCode) {//filetNameFields
     try {
         var layer = layui.layer;
         var excel = layui.excel;
         excel.importExcel(files, {
-            range:1,
-            // 读取数据的同时梳理数据
-            /*       fields: {
-                       'id' : 'A',
-                       'username' : 'B',
-                       'email' : 'C',
-                       'sex' : 'D',
-                       'city' : 'E'
-                   }*/
-            fields:filed
+         /*   range:1,
+            fields:filed*/
         }, function (data) {
             var arr = new Array();
+            var headCloums=[];
             if(data[0].hasOwnProperty('Sheet1')){
-                for(i = 0; i < data[0].Sheet1.length; i++){
-                    var tt = {};
-                    for (var key in filed)
-                    {
-                        // console.log(key); 	//Type, Height
-                        //console.log(filed[key]);	//Coding, 100
-                        tt[key]=""+data[0].Sheet1[i][key];
+                if( data[0].sheet1.length>0){
+                    var headMSet=data[0].sheet1[0];
+                    var fieldHead={};
+                    for(var key in headMSet){
+                        headCloums.push(filetNameFields[headMSet[key]]);
+                        //fieldHead[headMSet[key]]=key;
+                        fieldHead[key]=filetNameFields[headMSet[key]];
                     }
-
+                }
+                for(i = 1; i < data[0].sheet1.length; i++){
+                    var tt = {};
+                    for (var key in headMSet)
+                    {
+                        tt[fieldHead[key]]=data[0].sheet1[i][key];
+                    }
                     arr.push(tt);
                 }
             }
             if(data[0].hasOwnProperty('sheet1')){
-                for(i = 0; i < data[0].sheet1.length; i++){
-                    var tt = {};
-                    for (var key in filed)
-                    {
-                        // console.log(key); 	//Type, Height
-                        //console.log(filed[key]);	//Coding, 100
-                        tt[key]=data[0].sheet1[i][key];
+                if( data[0].sheet1.length>0){
+                    var headMSet=data[0].sheet1[0];
+                    var fieldHead={};
+                    for(var key in headMSet){
+                        headCloums.push(filetNameFields[headMSet[key]]);
+                        //fieldHead[headMSet[key]]=key;
+                        fieldHead[key]=filetNameFields[headMSet[key]];
                     }
-
+                }
+                for(i = 1; i < data[0].sheet1.length; i++){
+                    var tt = {};
+                    for (var key in headMSet)
+                    {
+                        tt[fieldHead[key]]=data[0].sheet1[i][key];
+                    }
                     arr.push(tt);
                 }
             }
-
             console.log(arr);
             $.ajax({
                 async: false,
@@ -241,17 +244,17 @@ function uploadExcel(files,tableCode,filed) {
                 data: {
                     isapend:isapend,
                     importCheckData:importCheckData,
-                    colums:exportCloums,
+                    colums:headCloums,
                     data : JSON.stringify(arr)
                 },
                 success: function (data) {
                     if(data.code==0){
                         layer.msg(data.msg);
-                         reloadTable();
+                        reloadTable();
                         layer.closeAll();//关闭弹出框
                     }else{
                         //表格导入失败后，重载文件上传
-                        layer.alert(data.error+"请重新上传",{icon : 2});
+                        layer.alert(data.msg+"请重新上传",{icon : 2});
                     }
                 },
                 error: function (msg) {
@@ -285,7 +288,6 @@ function importFile() {
             /*     $('#bid').val(data.bid);
                  $('#bname').val(data.bname);
                  $('#price').val(data.price);*/
-
         },
         yes:function(index,layero){
             isapend= $('input[name="isapend"]:checked').val();

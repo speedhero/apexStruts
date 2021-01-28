@@ -1,7 +1,6 @@
 package com.apex.bank.link;
 
 
-import com.apex.bank.sftp.DB2Handle;
 import com.apex.form.DataAccess;
 import com.google.gson.Gson;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,8 +25,8 @@ public class LayoutUtil {
 
     public static void init() throws SQLException{
         if(jdbcTemplate==null){
-            jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
-            // jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
+            //jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
+             jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
         }
 
     }
@@ -93,10 +92,11 @@ public class LayoutUtil {
     /*    <option value=""></option>
       <option value="0">写作</option>
       <option value="1" selected="">阅读</option>*/
-    public static String getSelectOption(String tableCode, String fieldCode) throws SQLException{
+    public static String getSelectOption(String tableCode, String fieldCode,String method) throws SQLException{
         String optionsStr="<option value=\"\"></option>";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
-                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
+                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode+"' AND upper(A.FFIELDCODE)='"
+                +fieldCode+"' AND B.FMETHODCODE='"+tableCode+"."+method+"'";
         init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
@@ -121,10 +121,11 @@ public class LayoutUtil {
  /*   <input type="checkbox" name="like[write]" title="写作">
     <input type="checkbox" name="like[read]" title="阅读" checked="">
     <input type="checkbox" name="like[game]" title="游戏">*/
-    public static String getCheckBoxOption(String tableCode, String fieldCode,int fisEdit) throws SQLException{
+    public static String getCheckBoxOption(String tableCode, String fieldCode,int fisEdit,String method) throws SQLException{
         String checkBoxStr="";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
-                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
+                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
+                +"' AND upper(A.FFIELDCODE)='"+fieldCode +"' AND B.FMETHODCODE='"+tableCode+"."+method+"'";
         init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
@@ -146,10 +147,11 @@ public class LayoutUtil {
         return checkBoxStr;
     }
 
-    public static String getRadioOption(String tableCode, String fieldCode,int fisEdit) throws SQLException{
+    public static String getRadioOption(String tableCode, String fieldCode,int fisEdit,String method) throws SQLException{
         String radiokBoxStr="";
         String querySql="select  B.FZDYXZX,A.FFIELDCODE " +
-                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='KMH_LXSR_2021' AND upper(A.FFIELDCODE)='"+fieldCode+"' ";
+                "from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode+"' AND upper(A.FFIELDCODE)='"+fieldCode
+                +"' AND B.FMETHODCODE='"+tableCode+"."+method+"'";
         init();
         List<Map<String,Object>> items =jdbcTemplate.queryForList(querySql);
         String value="";
@@ -177,7 +179,7 @@ public class LayoutUtil {
     String fevent=map.get("FEVENT").toString();//1|lay-filter;2|select;3|checkbox;4|switch;5|radio;6|submit;
     String flayverify=map.get("FLAYVERIFY").toString();//1|Required;2|Phone;3|Email;4|Url;5|Number;6|Data;7|Identity;8|自定义;
     String fplaceholder=map.get("FPLACEHOLDER").toString();*/
-    public static String getEditCtrl( int fedittype, String flayverify,int fisEdit, String fplaceholder,String fieldCode,String tableCode) throws SQLException {
+    public static String getEditCtrl( int fedittype, String flayverify,int fisEdit, String fplaceholder,String fieldCode,String tableCode,String method) throws SQLException {
         String editCtrl="";
         String disabled="";
 
@@ -198,16 +200,16 @@ public class LayoutUtil {
                         +"class=\"layui-input\"  />";
                 break; //可选
             case 3 :
-                editCtrl="<select lay-verify=\""+layverify+"\""+" lay-search=\"\"  name=\""+fieldCode+"\'"+"  lay-filter=\""+fieldCode+"\"  "+disabled+" >"+getSelectOption(tableCode,fieldCode)+"</select>";
+                editCtrl="<select lay-verify=\""+layverify+"\""+" lay-search=\"\"  name=\""+fieldCode+"\'"+"  lay-filter=\""+fieldCode+"\"  "+disabled+" >"+getSelectOption(tableCode,fieldCode,method)+"</select>";
                 break; //可选
             case 4 :
-                editCtrl=getCheckBoxOption(tableCode,fieldCode,fisEdit);
+                editCtrl=getCheckBoxOption(tableCode,fieldCode,fisEdit,method);
                 break; //可选
             case 5 :
                 editCtrl=" <input type=\"checkbox\"  name=\""+fieldCode+"\""+" lay-filter=\""+fieldCode+"\"  "+disabled+" lay-skin=\"switch\" lay-text=\"ON|OFF\">";
                 break; //可选
             case 6 :
-                editCtrl=getRadioOption( tableCode,  fieldCode,fisEdit);
+                editCtrl=getRadioOption( tableCode,  fieldCode,fisEdit,method);
                 break; //可选
             case 7 :
                 editCtrl="<input type=\"text\"  name=\""+fieldCode+"\" id=\""+fieldCode+"\" autocomplete=\"off\" class=\"layui-input laydateCls\""+disabled+" lay-filter=\""+fieldCode+"\" "+">";
@@ -239,7 +241,7 @@ public class LayoutUtil {
         </div>
     </div>*/
     public static String getFormShowCloums(String tableCode,String method) throws SQLException{
-        String cloums="";
+        String cloums="[]";
         String querySql="select  B.*,A.FFIELDNAME,A.FFIELDTYPE,A.FFIELDCODE " +
                 " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
                 +"' and FMETHODCODE='"+tableCode+"."+method+"'";
@@ -264,7 +266,7 @@ public class LayoutUtil {
     }
 
     public static String getFormShowField(String tableCode,String method) throws SQLException{
-        String cloums="";
+        String cloums="{}";
         String querySql="select  B.*,A.FFIELDNAME,A.FFIELDTYPE,A.FFIELDCODE " +
                 " from Exa_TableField A,Exa_TableFieldForm B  where A.FTABLEFIELD=B.FTABLEFIELDCODE AND  A.FTABLE='"+tableCode
                 +"' and FMETHODCODE='"+tableCode+"."+method+"'";
@@ -327,7 +329,7 @@ public class LayoutUtil {
                 if(fishide==1){
                     isHide=" style=\"display:none\" ";
                 }
-                editctrl=getEditCtrl(fedittype,flayverify,fisEdit,fplaceholder,fieldCode,tableCode);
+                editctrl=getEditCtrl(fedittype,flayverify,fisEdit,fplaceholder,fieldCode,tableCode,method);
 
                 layout=itemTpl+isHide+endTpl+lblTpl+fieldName+lblTplEnd+itemCss+editctrl+divTplEnd+divTplEnd;
                 layouts=layouts+layout;
@@ -345,7 +347,7 @@ public class LayoutUtil {
         for(Map.Entry<String, String> entry : group.entrySet()){
             String groupName = entry.getKey();
             String groupLayout = entry.getValue();
-            System.out.println(groupName+":"+groupLayout);
+           // System.out.println(groupName+":"+groupLayout);
             layoutForm=layoutForm+groupLayout+getLayoutGroupItems(tableCode,method,groupName);
         }
         return layoutForm;

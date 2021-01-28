@@ -15,7 +15,8 @@
     String basePath=request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
     //String id = request.getParameter("id");//用request得到
     String tableCode = request.getParameter("FCODE");
-    tableCode ="KMH_BLYJ_2021";// "F03_BIG_SCREEN_DEPOSIT_INFO";
+    boolean showMode = request.getParameter("ShowMode")==null?false:true;//false 编辑模式  true 查看模式
+    tableCode ="TESTASS";// "F03_BIG_SCREEN_DEPOSIT_INFO";
     String tableName =  "";
     String template="";
     String toolBarButtons="";
@@ -25,9 +26,10 @@
     String  filedjsonstring="";
     String  tablejsonstring="";
     String customField="0";
-    String exportCloums="";
-    String importCloums="";
-    String exportfield="";
+    String exportCloums="[]";
+    String importCloums="[]";
+    String exportfield="{}";
+    String functionEvent="";
 
 
     try {
@@ -57,8 +59,15 @@
         filedjsonstring = gson.toJson( DataTblUtil.getCloumsMap(thList,"FFIELDCODE"));
         jsonstring = gson.toJson(thList);
         template=DataTblUtil.getTemplate(tableCode);
-        toolBarButtons=DataTblUtil.getToolBarButtons(tableCode,1);
-        toolColButtons=DataTblUtil.getToolBarButtons(tableCode,2);
+        functionEvent=DataTblUtil.getEventFunc(tableCode);
+        if(showMode){
+            toolBarButtons=DataTblUtil.getToolBarButtonsShowMode(tableCode,1);
+            toolColButtons=DataTblUtil.getToolBarButtonsShowMode(tableCode,2);
+        }else{
+            toolBarButtons=DataTblUtil.getToolBarButtons(tableCode,1);
+            toolColButtons=DataTblUtil.getToolBarButtons(tableCode,2);
+        }
+
         exportCloums= LayoutUtil.getFormShowCloums(tableCode,"export");
         importCloums= LayoutUtil.getFormShowCloums(tableCode,"import");
         exportfield= LayoutUtil.getFormShowField(tableCode,"export");
@@ -219,6 +228,15 @@
             }
 
         });
+    }
+
+
+    function bindTblForm(form) {
+        //监听性别操作
+     /*   form.on('switch(sexDemo)', function(obj){
+            layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+        });*/
+     <%=functionEvent%>
     }
 </script>
 </body>

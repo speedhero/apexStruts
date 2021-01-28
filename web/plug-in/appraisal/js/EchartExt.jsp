@@ -12,8 +12,7 @@
     <meta charset="utf-8">
     <title>ECharts</title>
     <!-- 引入 echarts.js -->
-    <script src="../../echarts/echarts.min.js" ></script>
-   <%-- <script src="/plug-in/bank/dsc/js/echarts.min.js" ></script>--%>
+    <script src="/plug-in/bank/dsc/js/echarts.min.js" ></script>
 </head>
 <%
     String fmodulecode="";
@@ -28,7 +27,6 @@
     percentType= request.getParameter("PercentType")==null?1:Integer.parseInt(request.getParameter("PercentType"));
     //chartType=5;
 
-   // fmodulecode="KMH_BLYJ_2021";
     String date= DisPlayEchartsUtil.getMaxDataDate(fmodulecode);// "2021-01";
     String  jsonNameArr="[]";
     String  percentArr="[]";
@@ -82,8 +80,7 @@
 <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
 <%--<a href="http://localhost:8080/apexstruts/plug-in/appraisal/AssSlider.jsp" target="_blank">新窗口打开</a><br />--%>
 <div id="main" style="width: 100%;height:100%"></div>
-<script src="js/init.js"></script>
-<%--<script src="/plug-in/bank/dsc/appraisal/js/init.js"></script>--%>
+<script src="/plug-in/bank/dsc/appraisal/js/init.js"></script>
 <script>
     var  chartType=<%=chartType%>;
     var ftitle='<%=ftitle%>';

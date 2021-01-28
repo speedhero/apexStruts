@@ -1,12 +1,12 @@
 package com.apex.bank.link;
 
 
-import com.apex.bank.sftp.DB2Handle;
+import com.apex.bank.util.MapUtil;
 import com.apex.form.DataAccess;
 import com.google.gson.Gson;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,8 +17,8 @@ public class DataTblUtil {
 
     public static void init() throws SQLException{
         if(jdbcTemplate==null){
-           jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
-           // jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
+           //jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
+            jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
         }
 
     }
@@ -28,33 +28,6 @@ public class DataTblUtil {
     }
 
     //获得excel输出列
-/*    public static String getCloumsHead(int num){
-        String[] array = new String[] { "A", "B", "C", "D", "E", "F", "G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q",
-                "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
-        int count = 26;
-        System.out.println("num/count=" + num/count);
-        String out = "";
-        if (num/count != 0) {
-            if(num%count==0){
-                out = array[25];
-            }else {
-                out = array[num/count-1];
-            }
-
-            if (num%count == 0) {
-                out = out + array[num%count-1];
-                System.out.println(out);
-            } else {
-                out = out + array[num%count-1];
-                System.out.println(out);
-            }
-        }else if (num%count != 0) {
-            out = out + array[num%count-1];
-            System.out.println(out);
-        }
-        return out;
-    }*/
-
     public static String getCloumsHead(int index){
         String colCode = "";
         char key='A';
@@ -92,6 +65,16 @@ public class DataTblUtil {
         return template.toString();
     }
 
+    public static  String getEventFunc(String tableCode) throws SQLException {
+        StringBuilder function=new StringBuilder("");
+        init();
+        List<Map<String, Object>> functions=jdbcTemplate.queryForList("select FEVENT from Exa_TableFieldCSS  where FTEMPLET  IS NOT NULL  AND  FTABLECODE='"+tableCode+"'");
+        for(int i=0;i<functions.size();i++){
+            function.append(functions.get(i).get("FEVENT"));
+        }
+        return function.toString();
+    }
+
     public static  String getToolBarButtons(String tableCode) throws SQLException {
         StringBuilder button=new StringBuilder("");
         init();
@@ -112,10 +95,11 @@ public class DataTblUtil {
         String iconStyle="";
        if(type==1){
            for(int i=0;i<buttons.size();i++){
-               event=buttons.get(i).get("FEVENT")==null?"":buttons.get(i).get("FEVENT").toString();
-               fname=buttons.get(i).get("FNAME")==null?"":buttons.get(i).get("FNAME").toString();
-               fstyle=buttons.get(i).get("FSTYLE")==null?"":buttons.get(i).get("FSTYLE").toString();
-               iconStyle=buttons.get(i).get("FICON")==null?"":buttons.get(i).get("FICON").toString();
+               Map<String, Object> buttonMap= buttons.get(i);
+               event    =MapUtil.getKeyString(buttonMap,"FEVENT","");
+               fname    =MapUtil.getKeyString(buttonMap,"FNAME","");
+               fstyle   =MapUtil.getKeyString(buttonMap,"FSTYLE","");
+               iconStyle=MapUtil.getKeyString(buttonMap,"FICON","");
                if("导出".equalsIgnoreCase(fname)){
                    button=button.append("<button class=\"layui-btn layui-btn-sm "+fstyle+"\" lay-event=\""+event+"\"><i class=\"layui-icon\">\uE67C</i>"+fname+"</button>");
                }else if("导入".equalsIgnoreCase(fname)){
@@ -126,12 +110,56 @@ public class DataTblUtil {
            }
         }else if(type==2){
            for(int i=0;i<buttons.size();i++){
-               event=buttons.get(i).get("FEVENT")==null?"":buttons.get(i).get("FEVENT").toString();
-               fname=buttons.get(i).get("FNAME")==null?"":buttons.get(i).get("FNAME").toString();
-               fstyle=buttons.get(i).get("FSTYLE")==null?"":buttons.get(i).get("FSTYLE").toString();
-               iconStyle=buttons.get(i).get("FICON")==null?"":buttons.get(i).get("FICON").toString();
+               Map<String, Object> buttonMap= buttons.get(i);
+               event=    MapUtil.getKeyString(buttonMap,"FEVENT","");
+               fname=    MapUtil.getKeyString(buttonMap,"FNAME","");
+               fstyle=   MapUtil.getKeyString(buttonMap,"FSTYLE","");
+               iconStyle=MapUtil.getKeyString(buttonMap,"FICON","");
                button=button.append(" <a class=\"layui-btn layui-btn-xs "+fstyle +" \" lay-event=\""+event+"\">"+fname+"</a>");
            }
+        }
+        return button.toString();
+    }
+
+
+    public static  String getToolBarButtonsShowMode(String tableCode,int type) throws SQLException {
+        StringBuilder button=new StringBuilder("");
+        init();
+        List<Map<String, Object>> buttons=jdbcTemplate.queryForList("select  * from Exa_OperButton where FSTATUS=1 AND   FTable='"+tableCode+"' AND FTYPE="+type+" order by FSeq");
+        String event="";
+        String fname="";
+        String fstyle="";
+        String iconStyle="";
+        if(type==1){
+            for(int i=0;i<buttons.size();i++){
+                Map<String, Object> buttonMap= buttons.get(i);
+                event    =MapUtil.getKeyString(buttonMap,"FEVENT","");
+                fname    =MapUtil.getKeyString(buttonMap,"FNAME","");
+                fstyle   =MapUtil.getKeyString(buttonMap,"FSTYLE","");
+                iconStyle=MapUtil.getKeyString(buttonMap,"FICON","");
+                if(fname.indexOf("导出")>=0){
+                    if("导出".equalsIgnoreCase(fname)){
+                        button=button.append("<button class=\"layui-btn layui-btn-sm "+fstyle+"\" lay-event=\""+event+"\"><i class=\"layui-icon\">\uE67C</i>"+fname+"</button>");
+                    }else if("导入".equalsIgnoreCase(fname)){
+                        button=button.append("<button class=\"layui-btn layui-btn-sm "+fstyle+"\" lay-event=\""+event+"\"><i class=\"layui-icon layui-icon-download-circle\"></i>"+fname+"</button>");
+                    }else{
+                        button=button.append("<button class=\"layui-btn layui-btn-sm "+fstyle+"\" lay-event=\""+event+"\">"+iconStyle+fname+"</button>");
+                    }
+                }
+
+            }
+        }else if(type==2){
+            for(int i=0;i<buttons.size();i++){
+                Map<String, Object> buttonMap= buttons.get(i);
+                event=    MapUtil.getKeyString(buttonMap,"FEVENT","");
+                fname=    MapUtil.getKeyString(buttonMap,"FNAME","");
+                fstyle=   MapUtil.getKeyString(buttonMap,"FSTYLE","");
+                iconStyle=MapUtil.getKeyString(buttonMap,"FICON","");
+                if(fname.indexOf("查看")>=0){
+                    button=button.append(" <a class=\"layui-btn layui-btn-xs "+fstyle +" \" lay-event=\""+event+"\">"+fname+"</a>");
+                }
+
+            }
         }
         return button.toString();
     }
@@ -141,9 +169,9 @@ public class DataTblUtil {
         init();
         Map<String,Object> map =jdbcTemplate.queryForMap("select * from Exa_Table where FCODE='"+tableCode+"' ");
         Map<String,Integer> pro=new HashMap();
-        pro.put("isCheckBox",map.get("FISCHECKBOX")==null?1:Integer.parseInt(map.get("FISCHECKBOX").toString()));
-        pro.put("isnumber",map.get("FISOPERATE")==null?1:Integer.parseInt(map.get("FISOPERATE").toString()));
-        pro.put("isOperate",map.get("FISCOLNUMBER")==null?1:Integer.parseInt(map.get("FISCOLNUMBER").toString()));
+        pro.put("isCheckBox",MapUtil.getKeyInt(map,"FISCHECKBOX",1));
+        pro.put("isnumber",MapUtil.getKeyInt(map,"FISOPERATE",1));
+        pro.put("isOperate",MapUtil.getKeyInt(map,"FISCOLNUMBER",1));
         return pro;
     }
 
@@ -182,16 +210,16 @@ public class DataTblUtil {
                     }
 
                 }
-
                 for(int j=0;j<list.size();j++){
-                  String  field   =   list.get(j).get("FTITLECODE")==null?"":list.get(j).get("FTITLECODE").toString();
-                  String  title   =   list.get(j).get("FTITLE")==null?"":list.get(j).get("FTITLE").toString();
-                  int  colspan =   list.get(j).get("FCOLSPAN")==null?1:Integer.parseInt(list.get(j).get("FCOLSPAN").toString());
-                  int  rowspan =   list.get(j).get("FROWSPAN")==null?1:Integer.parseInt(list.get(j).get("FROWSPAN").toString());
-                  String  width   =   list.get(j).get("FWIDTH")==null?"":list.get(j).get("FWIDTH").toString();
-                  Boolean  hide    =  "1".equalsIgnoreCase(list.get(j).get("FISHIDE").toString()) ?true:false;
-                  String  align   =   "1".equalsIgnoreCase(list.get(j).get("FALIGN").toString())?"center":(list.get(j).get("FALIGN")=="2"?"left":"right");//1|center;2|left;3|right
-                    Boolean  totalRow=   list.get(j).get("FISTOTALROW")=="1"?true:false;;
+                  Map<String,Object> maptemp=list.get(j);
+                  String  field   = MapUtil.getKeyString(maptemp,"FTITLECODE","");
+                  String  title   = MapUtil.getKeyString(maptemp,"FTITLE","");
+                  int  colspan    = MapUtil.getKeyInt(maptemp,"FCOLSPAN",1);
+                  int  rowspan    = MapUtil.getKeyInt(maptemp,"FROWSPAN",1);
+                  String  width   = MapUtil.getKeyString(maptemp,"FWIDTH","");
+                  Boolean  hide   = "1".equalsIgnoreCase(MapUtil.getKeyString(maptemp,"FISHIDE","0")) ?true:false;
+                  String  align   = "1".equalsIgnoreCase(MapUtil.getKeyString(maptemp,"FALIGN","1"))?"center":(list.get(j).get("FALIGN")=="2"?"left":"right");//1|center;2|left;3|right
+                  Boolean  totalRow=   list.get(j).get("FISTOTALROW")=="1"?true:false;;
                   Map map=new HashMap();
                   if(field!=null&&!"".equalsIgnoreCase(field)){
                       map.put("field",field.toUpperCase());
@@ -250,6 +278,83 @@ public class DataTblUtil {
         queryCondition=queryCondition+")";
         columInfos= jdbcTemplate.queryForList(queryCondition);
         return  columInfos;
+    }
+
+    public static Map execProcedure(String tableCode,String procedure,String cloums) throws Exception{
+        Map retMap=new HashMap();
+        Integer  o_Ret =-1;
+        String o_Msg ="";
+        Integer  i_User=0;
+        //List<Map<String, Object>> entryList =
+  /*      jdbcTemplate.execute(new CallableStatementCreator() {
+            public CallableStatement createCallableStatement(Connection con) throws SQLException {
+                String storedProc = "{ call sp_ImportData_Deal(?,?,?,?) }";// 调用的sql
+                CallableStatement cs = con.prepareCall(storedProc);
+                cs.registerOutParameter(1, Types.INTEGER);// 设置输入参数的值
+                cs.registerOutParameter(2, Types.VARCHAR);
+                cs.setInt(3, i_User);
+                cs.setString(4, tableCode);
+                return cs;
+            }
+        }, new CallableStatementCallback() {
+            public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
+                List resultsMap = new ArrayList();
+                cs.execute();
+                ResultSet rs = (ResultSet) cs.getObject(5);// 获取游标一行的值
+                while (rs.next()) {// 转换每行的返回值到Map中
+                    Map rowMap = new HashMap();
+                    rowMap.put("org_code", rs.getString("org_code"));
+
+                    resultsMap.add(rowMap);
+                }
+                rs.close();
+                Integer  o_Ret =-1;
+                String o_Msg ="";
+                o_Ret=  cs.getInt(1);
+                o_Msg= cs.getString(2);
+                return resultsMap;
+            }
+        });*/
+
+        Connection conn =null;
+        CallableStatement cs=null;
+        try {
+            //conn =DB2Handle.getConnection();
+            conn =DataAccess.getDataSource().getConnection();
+            cs = conn.prepareCall("call "+procedure+"(?,?,?,?,?)");
+            cs.registerOutParameter(1, Types.INTEGER);// 设置输入参数的值
+            cs.registerOutParameter(2, Types.VARCHAR);
+            cs.setInt(3, i_User);
+            cs.setString(4, tableCode);
+            cs.setString(5,cloums);
+            cs.execute();
+            o_Ret=  cs.getInt(1);
+            o_Msg= cs.getString(2);
+            conn.close();
+
+        }catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally{
+            if(cs!=null){
+                try {
+                    cs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(conn!=null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        retMap.put("o_Ret",o_Ret);
+        retMap.put("o_Msg",o_Msg);
+        return retMap;
     }
 
 }

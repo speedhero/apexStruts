@@ -2,7 +2,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="com.google.gson.Gson" %>
 <%@ page import="com.apex.bank.ext.display.DisPlayEchartsUtil" %>
-<%@ page import="com.apex.bank.MapUtil" %>
+<%@ page import="com.apex.bank.util.MapUtil" %>
 <%@ page import="java.util.Map" %><%--
   Created by IntelliJ IDEA.
   User: Rick

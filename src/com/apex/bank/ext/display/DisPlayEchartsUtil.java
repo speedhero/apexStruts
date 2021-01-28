@@ -1,18 +1,16 @@
 package com.apex.bank.ext.display;
 
-import com.apex.bank.MapUtil;
 import com.apex.bank.sftp.DB2Handle;
+import com.apex.bank.util.MapUtil;
+import com.apex.form.DataAccess;
 import com.google.gson.Gson;
-import org.apache.commons.collections.MapUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DisPlayEchartsUtil {
     public static JdbcTemplate jdbcTemplate=null;
@@ -20,7 +18,7 @@ public class DisPlayEchartsUtil {
     public static void init() throws SQLException {
         if(jdbcTemplate==null){
             jdbcTemplate  = new JdbcTemplate(DB2Handle.getDataSource());
-            // jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
+            //jdbcTemplate  = new JdbcTemplate(DataAccess.getDataSource());
         }
 
     }
@@ -155,6 +153,8 @@ public class DisPlayEchartsUtil {
                     percent=0d;
                 }else if(factual>0&&ftarget>0){
                     percent =formatDouble2(factual/ftarget*100);
+                }else if(factual>0&&ftask==0){
+                    percent =factual;
                 }else{
                     percent=0d;
                 }
@@ -163,6 +163,8 @@ public class DisPlayEchartsUtil {
                     percent=0d;
                 }else if(factual>0&&ftask>0){
                     percent =formatDouble2(factual/ftask*100);
+                }else if(factual>0&&ftask==0){
+                    percent =factual;
                 }else{
                     percent=0d;
                 }
@@ -299,6 +301,9 @@ public class DisPlayEchartsUtil {
             case 4 :
                 FSORT=5;orderBy=" ASC ";
                 break;
+            case 5 :
+                FSORT=100;orderBy=" DESC ";
+                break;
         }
 
         Map<String,String> jsonStrMap=new HashMap();
@@ -309,13 +314,16 @@ public class DisPlayEchartsUtil {
         Gson gson=new Gson();
         //SELECT  cast(substr(NVL(FRATE,'0%'), 1, locate('%', NVL(FRATE,'0%'))-1) as decimal(8,2))  FRATE FROM Exa_QuotaConf WHERE
                 //      FMODULECODE = 'KMH_BLYJ_2021' ORDER BY FRATE DESC FETCH FIRST  10 ROWS  ONLY;
-        String sql="select cast(substr(NVL(FRATE,'0%'), 1, locate('%', NVL(FRATE,'0%'))-1) as decimal(8,2)) FRATE,FORGNAME,FTARGET,FACTUAL,FTASK " +
+      //  String sql="select cast(substr(NVL(FRATE,'0%'), 1, locate('%', NVL(FRATE,'0%'))-1) as decimal(8,2)) FRATE,FORGNAME,FTARGET,FACTUAL,FTASK " +
+        //        "  from Exa_QuotaConf where FMODULECODE='"+fmodulecode+"' " +
+          //      "   and FDATADATE='"+date+"'  ORDER BY FRATE "+orderBy+" FETCH FIRST "+FSORT +" ROWS  ONLY";
+        String sql="select  FRATE,FORGNAME,FTARGET,FACTUAL,FTASK " +
                 "  from Exa_QuotaConf where FMODULECODE='"+fmodulecode+"' " +
-                "   and FDATADATE='"+date+"'  ORDER BY FRATE "+orderBy+" FETCH FIRST "+FSORT +" ROWS  ONLY";//(select TO_CHAR(MAX(TO_DATE(FDATADATE,'YYYY-MM')),'YYYY-MM') from Exa_QuotaConf)
+                "   and FDATADATE='"+date+"'  ORDER BY FRATE "+orderBy+" FETCH FIRST "+FSORT +" ROWS  ONLY";
         List<Map<String,Object>> items=  jdbcTemplate.queryForList(sql);
 
         List nameList=new ArrayList();
-        List<Double> percentList=new ArrayList();
+        List<Map> percentList=new ArrayList();
         List<Double> extpercentList=new ArrayList();
         int limit=10;
 
@@ -331,18 +339,18 @@ public class DisPlayEchartsUtil {
             if(frate>maxvalue){
                 maxvalue=frate;
             }
-         /*   Map valMap=new HashMap();
+            Map valMap=new HashMap();
             valMap.put("value",frate);
             valMap.put("ftarget",ftarget);
             valMap.put("factual",factual);
             valMap.put("ftask",ftask);
-            percentList.add(valMap);*/
-            percentList.add(frate);
+            percentList.add(valMap);
+          //  percentList.add(frate);
             nameList.add(forgname);
         }
 
-        for(Double percent: percentList){
-            extpercentList.add(maxvalue+50-percent);
+        for(Map percent: percentList){
+            extpercentList.add(maxvalue+50-MapUtil.getKeyDouble(percent,"value",0d) );
         }
 
         jsonNameArr=gson.toJson(nameList);
@@ -365,6 +373,7 @@ public class DisPlayEchartsUtil {
         String  actualtArr="";
         String  groupArr="";
         String  pageArr="";
+        String  jsonTrgArr="";
         Gson gson=new Gson();
         String groupSql="SELECT FGROUPCODE,FNAME FROM Exa_QuotaConf WHERE FMODULECODE = '"+fmodulecode+"' group by  FGROUPCODE,FNAME";
         List<Map<String,Object>> grpItems =jdbcTemplate.queryForList(groupSql);
@@ -382,62 +391,56 @@ public class DisPlayEchartsUtil {
             if(!"".equalsIgnoreCase(grpCode)){
                 String sql="select FORGNAME, FTARGET, FACTUAL,FTASK  from Exa_QuotaConf where FMODULECODE='"+fmodulecode+"' " +
                         "   and FDATADATE='"+date+"' AND FGROUPCODE='"+grpCode+"' ORDER BY FORGNAME";
-                grpItemName.add("应达"+grpName);
+
                 List<Map<String,Object>> items=  jdbcTemplate.queryForList(sql);
-
+                grpItemName.add(grpName);
                 int limit=10;
-
-                for(int i=0;i<(items.size()/limit);i++){
-                    List<Double> subTrglist=new ArrayList();
-                    List<Double> subActlist=new ArrayList();
-                    List<Double> subpercentList=new ArrayList();
-                    List<Double> subTasklist=new ArrayList();
-
-                    pageList.add(i+1);
-                    int subSize=0;
-                    if(i<(items.size()/limit)){
-                        subSize=limit;
-                    }else {
-                        subSize= items.size()%limit;
+            /*    for(int i=0;i<(items.size()/limit);i++){
+                    if(k==0){
+                        pageList.add(i+1);
                     }
-                    for(int j=0;j<subSize;j++){
-                        Map item=items.get(i*10+j);
-                        String forgname =MapUtil.getKeyString(item,"FORGNAME","");
-                        Double ftarget = MapUtil.getKeyDouble(item,"FTARGET",0d);
-                        Double factual=MapUtil.getKeyDouble(item,"FACTUAL",0d);
-                        Double ftask=MapUtil.getKeyDouble(item,"FTASK",0d);
-                        Double percent=0d;
-                        if(type==1){
-                            if(factual==0){
-                                percent=0d;
-                            }else if(factual>0&&ftarget>0){
-                                percent =formatDouble2(factual/ftarget*100);
-                            }else{
-                                percent=0d;
-                            }
-                        }else if((type==2)) {
-                            if(factual==0){
-                                percent=0d;
-                            }else if(factual>0&&ftask>0){
-                                percent =formatDouble2(factual/ftask*100);
-                            }else{
-                                percent=0d;
-                            }
+                }*/
+                List<Double> subTrglist=new ArrayList();
+                List<Double> subActlist=new ArrayList();
+                List<Double> subpercentList=new ArrayList();
+                List<Double> subTasklist=new ArrayList();
+                List<String> subNamelist=new ArrayList<>();
+                for(int i=0;i<items.size();i++){
+                    Map item=items.get(i);
+                    String forgname =MapUtil.getKeyString(item,"FORGNAME","");
+                    Double ftarget = MapUtil.getKeyDouble(item,"FTARGET",0d);
+                    Double factual=MapUtil.getKeyDouble(item,"FACTUAL",0d);
+                    Double ftask=MapUtil.getKeyDouble(item,"FTASK",0d);
+                    Double percent=0d;
+                    if(type==1){
+                        if(factual==0){
+                            percent=0d;
+                        }else if(factual>0&&ftarget>0){
+                            percent =formatDouble2(factual/ftarget*100);
+                        }else{
+                            percent=0d;
                         }
-                        //subNamelist.add(forgname);
-                        nameList.add(forgname);
-                        subTrglist.add(ftarget);
-                        subActlist.add(factual);
-                        subpercentList.add(percent);
-                        subTasklist.add(ftask);
+                    }else if((type==2)) {
+                        if(factual==0){
+                            percent=0d;
+                        }else if(factual>0&&ftask>0){
+                            percent =formatDouble2(factual/ftask*100);
+                        }else{
+                            percent=0d;
+                        }
                     }
-
-                    sumpercentList.add(subpercentList);
-                    sumtrgList.add(subTrglist);
-                    sumactualList.add(subActlist);
-                    sumtaskList.add(subTasklist);
+                    subNamelist.add(forgname);
+                    subTrglist.add(ftarget);
+                    subActlist.add(factual);
+                    subpercentList.add(percent);
+                    subTasklist.add(ftask);
                 }
 
+                nameList=subNamelist;
+                sumpercentList.add(subpercentList);
+                sumtrgList.add(subTrglist);
+                sumactualList.add(subActlist);
+                sumtaskList.add(subTasklist);
             }
 
         }
@@ -447,10 +450,11 @@ public class DisPlayEchartsUtil {
         actualtArr=gson.toJson(sumactualList);
         groupArr=gson.toJson(grpItemName);
         pageArr=gson.toJson(pageList);
-
+        jsonTrgArr=gson.toJson(sumtrgList);
         jsonStrMap.put("jsonNameArr",jsonNameArr);
         jsonStrMap.put("percentArr",percentArr);
         jsonStrMap.put("actualtArr",actualtArr);
+        jsonStrMap.put("jsonTrgArr",jsonTrgArr);
         jsonStrMap.put("groupArr",groupArr);
         jsonStrMap.put("pageArr",pageArr);
         return jsonStrMap;
@@ -463,6 +467,42 @@ public class DisPlayEchartsUtil {
         BigDecimal bg = new BigDecimal(d).setScale(2, RoundingMode.UP);
 
         return bg.doubleValue();
+    }
+
+
+    public static String getMaxDataDate(String fmodulecode) throws SQLException{
+        init();
+        String maxdate="";
+        String groupSql="select TO_CHAR(MAX(TO_DATE(FDATADATE,'YYYY-MM')),'YYYY-MM') DATE from Exa_QuotaConf WHERE  FMODULECODE = '"+fmodulecode+"'";
+        Map<String,Object> dateMap =jdbcTemplate.queryForMap(groupSql);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+       // System.out.println("把当前时间转换成字符串：" + sdf.format(new Date()));
+        maxdate=MapUtil.getKeyString(dateMap,"DATE",sdf.format(new Date()));
+        return maxdate;
+    }
+
+    public static String getColor(String fmodulecode,String ftitle)throws SQLException{
+        String groupSql="select FColor from DC_Echarts_Ext WHERE  FModuleCode = '"+fmodulecode+"'  and FTITLE='"+ftitle+"'";
+        init();
+        Map<String,Object> dateMap =jdbcTemplate.queryForMap(groupSql);
+        String color=MapUtil.getKeyString(dateMap,"FCOLOR","#C1232B,#B5C334,#fc877d,#e81c50,#27727B");
+        Gson gson=new Gson();
+        String[] colors=null;
+        if(color!=null&&color!="");{
+            colors=color.split(",");
+        }
+        String colorlist= gson.toJson(colors);
+        return colorlist;
+
+    }
+
+    public static String getIsSlider(String fmodulecode,String ftitle)throws SQLException{
+        String groupSql="select FISlider from DC_Echarts_Ext WHERE  FModuleCode = '"+fmodulecode+"'  and FTITLE='"+ftitle+"'";
+        init();
+        Map<String,Object> dateMap =jdbcTemplate.queryForMap(groupSql);
+        String fislider=MapUtil.getKeyString(dateMap,"FISLIDER","1");
+        return fislider;
+
     }
 
 

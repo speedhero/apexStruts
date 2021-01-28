@@ -134,10 +134,6 @@ public class LinkGuideAction  extends DispatchAction {
                 }
                 urlList.add(rowData);
             }
-
-
-
-
             String string = new Gson().toJson(urlList);
             JsonArray jsonArray = new JsonParser().parse(string).getAsJsonArray();
             PrintWriter out=response.getWriter();
